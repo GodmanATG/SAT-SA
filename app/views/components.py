@@ -280,17 +280,18 @@ def full_evidence_export(finding: dict, *, key: str, label: str | None = None):
 
     resolved = int(frame.get("resolved_records", pd.Series([0])).iloc[0]) if not frame.empty else 0
     declared = int(finding.get("evidence_count", 0) or 0)
+    effective_count = resolved if resolved > 0 else declared
     if resolved:
         note = (f"Reconstructed **{resolved:,}** record(s) at full population "
                 f"(the stored sample holds {min(declared, 25):,}).")
     else:
         note = "This finding has no per-record evidence list (see the export's note column)."
-    default_label = (f"⬇️ Export all evidence records (CSV) — {resolved:,} row(s)" if resolved
-                     else "⬇️ Export evidence basis (CSV)")
+    default_label = (f"⬇️ Download Full CSV ({effective_count:,} records)" if effective_count
+                     else "⬇️ Download Full CSV (Evidence Basis)")
     st.download_button(
         label or default_label,
         data=frame.to_csv(index=False).encode("utf-8"),
-        file_name=f"sat-sa-evidence-{finding.get('rule_id','rule')}-"
+        file_name=f"sat-sa-full-evidence-{finding.get('rule_id','rule')}-"
                   f"{(finding.get('entity_id') or '')[:8]}.csv",
         mime="text/csv", key=f"ev_{key}")
     st.caption(note)

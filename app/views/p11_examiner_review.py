@@ -162,16 +162,18 @@ def render(entity_ids=None):
         return
 
     # ── paginated, searchable queue ──────────────────────────────────────
-    # A single-select table rather than a dropdown: an examiner working a portfolio
-    # of hundreds of findings can search it, page through it, and see the ranking
-    # around the item they are reviewing - which a 60-item dropdown cannot show.
+    # A paginated, searchable review queue table: an examiner working a portfolio
+    # of hundreds or thousands of findings can search it, page through it, and see
+    # the ranking around the item they are reviewing without any 60-finding cap.
     total_pages = max(1, math.ceil(len(queue) / page_size))
     page = int(st.session_state.get("adj_page", 0))
     if page >= total_pages:
         page = total_pages - 1
+    if page < 0:
+        page = 0
     st.session_state["adj_page"] = page
 
-    st.caption(f"**{len(queue)}** finding(s) in the queue · page {page + 1} of {total_pages} · "
+    st.caption(f"**{len(queue)}** finding(s) in review queue · page {page + 1} of {total_pages} · "
                f"ranked by severity. Select a row to review and adjudicate it below.")
 
     page_slice = queue[page * page_size:(page + 1) * page_size]
@@ -198,28 +200,52 @@ def render(entity_ids=None):
         column_config={"Score": st.column_config.NumberColumn("Score", format="%.2f")})
 
     selected_rows = list(getattr(getattr(event, "selection", None), "rows", []) or [])
-    if selected_rows:
+    if selected_rows and selected_rows[0] < len(page_slice):
         st.session_state["adj_selected_id"] = page_slice[selected_rows[0]]["finding_id"]
 
-    nav1, nav2, nav3, nav4 = st.columns([1, 1, 1, 3])
-    if nav1.button("⬅️ Previous", disabled=page == 0, key="adj_prev"):
-        st.session_state["adj_page"] = page - 1
+    nav_first, nav_prev, nav_page, nav_next, nav_last = st.columns([1, 1, 2, 1, 1])
+    if nav_first.button("⏮️ First", disabled=page == 0, key="adj_first"):
+        st.session_state["adj_page"] = 0
         st.rerun()
-    if nav2.button("Next ➡️", disabled=page >= total_pages - 1, key="adj_next"):
-        st.session_state["adj_page"] = page + 1
+    if nav_prev.button("◀️ Prev", disabled=page == 0, key="adj_prev"):
+        st.session_state["adj_page"] = max(0, page - 1)
         st.rerun()
-    if nav3.button("Jump to page"):
-        st.session_state["adj_page"] = min(total_pages - 1,
-                                           max(0, int(st.number_input(
-                                               "Page", min_value=1, max_value=total_pages,
-                                               value=page + 1, key="adj_page_jump")) - 1))
+    new_page = nav_page.number_input(
+        f"Page (of {total_pages})", min_value=1, max_value=total_pages,
+        value=page + 1, key="adj_page_num"
+    )
+    if new_page - 1 != page:
+        st.session_state["adj_page"] = int(new_page) - 1
         st.rerun()
+    if nav_next.button("Next ▶️", disabled=page >= total_pages - 1, key="adj_next"):
+        st.session_state["adj_page"] = min(total_pages - 1, page + 1)
+        st.rerun()
+    if nav_last.button("Last ⏭️", disabled=page >= total_pages - 1, key="adj_last"):
+        st.session_state["adj_page"] = total_pages - 1
+        st.rerun()
+
+    # Synchronized item selector for the current page
+    page_options = {
+        f["finding_id"]: f"{SEVERITY_ICON.get(f['severity'], '')} {f['rule_id']} · {f['entity_name']} · {f['title']}"
+        for f in page_slice
+    }
+    current_selected = st.session_state.get("adj_selected_id")
+    current_idx = list(page_options.keys()).index(current_selected) if current_selected in page_options else 0
+
+    chosen_id = st.selectbox(
+        "Select finding to review from this page (or click row in table above):",
+        options=list(page_options.keys()),
+        format_func=lambda fid: page_options.get(fid, fid),
+        index=current_idx if page_options else 0,
+        key=f"adj_pick_{page}"
+    )
+    if chosen_id:
+        st.session_state["adj_selected_id"] = chosen_id
 
     selected_id = st.session_state.get("adj_selected_id")
     if not selected_id:
         st.info("Select a finding from the table above to review it. Use the filters and the "
-                "search box to narrow the queue — every finding is reachable, not just the first "
-                "page.")
+                "search box to narrow the queue — every finding is reachable across all pages.")
         return
 
     match = next((f for f in findings if f["finding_id"] == selected_id), None)
@@ -261,6 +287,23 @@ def render(entity_ids=None):
                    "than the capped sample stored with it.")
         full_evidence_export(finding, key=f"adj_{finding['finding_id']}")
 
+    # Check for just completed adjudication / recalculation messages
+    just_adj = st.session_state.pop("just_adjudicated", None)
+    if just_adj:
+        st.success(f"Recorded **{just_adj['verdict']}** for `{just_adj['rule_id']}`.")
+        rc_c1, rc_c2 = st.columns([1, 2])
+        if rc_c1.button("🔄 Recalculate Scores Now", key=f"instant_recalc_btn_{just_adj['finding_id']}", type="primary"):
+            from views.components import run_detection_with_progress
+            summary = run_detection_with_progress("Recalculating scores")
+            st.success(f"✅ Recalculated — {summary['entities']} entities · {summary['findings']} findings.")
+            st.rerun()
+        rc_c2.caption("Instantly refresh entity risk scores and capability scorecards without leaving this review page.")
+
+    just_recalc = st.session_state.pop("just_recalculated", None)
+    if just_recalc:
+        st.success(f"✅ Verdict saved and scores instantly recalculated! {just_recalc['entities']} entities · "
+                   f"{just_recalc['findings']} findings · Duration: {just_recalc['duration_s']}s.")
+
     with st.form(key=f"adj_form_{finding['finding_id']}", clear_on_submit=False):
         verdict = st.radio("Examiner verdict", ADJUDICATION_VERDICTS,
                            index=ADJUDICATION_VERDICTS.index(finding["verdict"])
@@ -274,9 +317,12 @@ def render(entity_ids=None):
                         "was found, and why the finding does or does not stand. This becomes part of "
                         "the audit record.")
         examiner = st.text_input("Examiner name / initials", value="supervisor", key="adj_examiner")
-        submitted = st.form_submit_button("💾 Record verdict", type="primary")
+        
+        btn_c1, btn_c2 = st.columns([1, 1])
+        submitted = btn_c1.form_submit_button("💾 Save Verdict", type="secondary")
+        submitted_recalc = btn_c2.form_submit_button("⚡ Save & Recalculate Now", type="primary")
 
-    if submitted:
+    if submitted or submitted_recalc:
         if verdict != "Confirmed" and not rationale.strip():
             st.error("A rationale is required unless the finding is confirmed.")
         else:
@@ -286,11 +332,25 @@ def render(entity_ids=None):
                 log_action(conn, "FINDING_ADJUDICATED", finding["entity_id"],
                            f"{finding['rule_id']} {finding['finding_id'][:8]} → {verdict}"
                            f" ({adj_id})")
-            st.success(f"Recorded **{verdict}** for `{finding['rule_id']}`. Press **Recalculate "
-                       f"scores now** at the top of this page to apply it to the supervisory score.")
-            if finding["history"]:
-                st.caption(f"This finding has now been adjudicated {len(finding['history']) + 1} time(s).")
+            if submitted_recalc:
+                from views.components import run_detection_with_progress
+                summary = run_detection_with_progress("Recalculating scores after verdict override")
+                st.session_state["just_recalculated"] = summary
+            else:
+                st.session_state["just_adjudicated"] = {
+                    "rule_id": finding["rule_id"],
+                    "verdict": verdict,
+                    "finding_id": finding["finding_id"]
+                }
             st.rerun()
+
+    # Recalculate option right on the review section
+    recalculate_button(
+        f"inline_{finding['finding_id']}",
+        label="🔄 Recalculate scores now",
+        caption="Instantly apply verdicts — findings judged False positive or Expected will be excluded from scoring.",
+        columns=(1, 2)
+    )
 
     if finding["history"]:
         with st.expander(f"Decision history ({len(finding['history'])} earlier entry/entries)"):
@@ -311,22 +371,28 @@ def render(entity_ids=None):
             decided_rows = group[group["verdict"] != ""]
             suppressed = decided_rows[decided_rows["verdict"].map(is_non_counting)]
             row = metrics.get(entity_id, {})
+            sev_supp = 0.0
+            if "severity_score" in suppressed.columns and not suppressed.empty:
+                sev_supp = round(float(suppressed["severity_score"].fillna(0).sum()), 2)
             rows.append(dict(
                 entity=group["entity_name"].iloc[0],
                 tier=group["tier"].iloc[0],
                 findings=len(group),
                 adjudicated=len(decided_rows),
                 suppressed=len(suppressed),
-                severity_suppressed=round(float(suppressed["severity_score"].sum()), 2),
+                severity_suppressed=sev_supp,
                 risk_score=row.get("risk_score", ""),
                 examiner_suppressed_metric=row.get("examiner_suppressed", 0),
             ))
         effect = pd.DataFrame(rows).sort_values("suppressed", ascending=False)
         st.dataframe(effect, width="stretch", hide_index=True)
 
-        total_sev = round(float(pd.DataFrame(decided)["severity_score"]
-                                .where(pd.DataFrame(decided)["verdict"].map(is_non_counting), 0)
-                                .sum()), 2)
+        dec_df = pd.DataFrame(decided)
+        total_sev = 0.0
+        if "severity_score" in dec_df.columns and not dec_df.empty:
+            total_sev = round(float(dec_df["severity_score"]
+                                    .where(dec_df["verdict"].map(is_non_counting), 0)
+                                    .fillna(0).sum()), 2)
         st.caption(
             f"Across the portfolio, **{len(non_counting)}** finding(s) carrying **{total_sev}** severity "
             f"points have been taken out of scoring by examiner judgement. The "

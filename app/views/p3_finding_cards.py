@@ -157,19 +157,21 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
                 sample = json.loads(f.get("evidence_ids") or "[]")
             except (json.JSONDecodeError, TypeError):
                 sample = []
+            sample_len = len(sample)
             if count:
                 shown = ", ".join(str(s) for s in sample[:5])
-                st.caption(f"📎 {count:,} supporting record(s); stored sample: {shown}"
-                           + (" …" if count > len(sample) else "")
-                           + " — open **Evidence Drill-Down** to read them.")
+                st.caption(f"📎 **{count:,}** total flagged record(s) *(inline preview sample of {min(count, sample_len or 25)} IDs: `{shown}`"
+                           + (" …" if count > 5 else "")
+                           + ")*")
             else:
                 st.caption("📎 Derived from the absence of expected records (negative space) — "
                            "verify via the inventory / coverage views.")
 
-            with st.expander("📎 Full evidence export"):
-                st.caption("The stored sample is capped to keep the database small. This "
-                           "reconstructs every record behind the finding from the canonical tables.")
-                full_evidence_export(f, key=f"card_{f['finding_id']}")
+            # Prominent Download Full CSV button for examiners needing all records
+            full_evidence_export(
+                f, key=f"card_{f['finding_id']}",
+                label=f"⬇️ Download Full CSV ({count:,} records)" if count else "⬇️ Download Full CSV (Evidence Basis)"
+            )
 
             # ── inline adjudication: the examiner's judgement, recorded where it is formed ──
             with st.expander("🧑‍⚖️ Examiner verdict" + (f" — currently **{verdict}**" if verdict else "")):

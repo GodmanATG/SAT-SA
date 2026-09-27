@@ -21,55 +21,90 @@ from datetime import datetime
 from fpdf import FPDF
 
 
+def _clean(text) -> str:
+    """Sanitize text to be compatible with core PDF latin-1 fonts."""
+    if text is None:
+        return ""
+    text = str(text)
+    replacements = {
+        "\u2014": "--",  # em dash
+        "\u2013": "-",   # en dash
+        "\u2012": "-",
+        "\u2022": "*",   # bullet
+        "\u2026": "...", # ellipsis
+        "\u2018": "'",   # single quotes
+        "\u2019": "'",
+        "\u201c": '"',   # double quotes
+        "\u201d": '"',
+        "\u2192": "->",  # arrow
+        "\u2190": "<-",
+        "\u2194": "<->",
+        "\u00b7": "-",   # middle dot
+        "•": "*",
+        "→": "->",
+        "—": "--",
+        "–": "-",
+        "…": "...",
+        "·": "-",
+    }
+    for orig, rep in replacements.items():
+        text = text.replace(orig, rep)
+    return text.encode("latin-1", "replace").decode("latin-1")
+
+
 class SATSAReport(FPDF):
     """Custom PDF with SAT-SA branding."""
 
     def header(self):
         self.set_font("Helvetica", "B", 10)
-        self.cell(0, 8, "SAT-SA | Supervisory Analytics Tool for SOC Assessment", align="R")
+        self.cell(0, 8, _clean("SAT-SA | Supervisory Analytics Tool for SOC Assessment"), align="R")
         self.ln(10)
 
     def footer(self):
         self.set_y(-15)
         self.set_font("Helvetica", "I", 8)
-        self.cell(0, 10, f"Page {self.page_no()}/{{nb}} | Generated: "
-                         f"{datetime.now().strftime('%Y-%m-%d %H:%M')} | CONFIDENTIAL", align="C")
+        self.cell(0, 10, _clean(f"Page {self.page_no()}/{{nb}} | Generated: "
+                                f"{datetime.now().strftime('%Y-%m-%d %H:%M')} | CONFIDENTIAL"), align="C")
 
     def section_title(self, title: str):
         self.set_font("Helvetica", "B", 14)
         self.set_fill_color(41, 128, 185)
         self.set_text_color(255, 255, 255)
-        self.cell(0, 10, f"  {title}", fill=True, new_x="LMARGIN", new_y="NEXT")
+        self.cell(0, 10, _clean(f"  {title}"), fill=True, new_x="LMARGIN", new_y="NEXT")
         self.set_text_color(0, 0, 0)
         self.ln(4)
 
     def sub_title(self, title: str):
         self.set_font("Helvetica", "B", 11)
-        self.multi_cell(0, 6, title, new_x="LMARGIN", new_y="NEXT")
+        self.multi_cell(0, 6, _clean(title), new_x="LMARGIN", new_y="NEXT")
         self.ln(1)
 
     def body_text(self, text: str, size: int = 10):
+        self.set_x(self.l_margin)
         self.set_font("Helvetica", "", size)
-        self.multi_cell(0, 5.5, str(text))
+        self.multi_cell(0, 5.5, _clean(text), new_x="LMARGIN", new_y="NEXT")
         self.ln(1)
 
     def kv_row(self, key: str, value: str, key_width: int = 78):
+        self.set_x(self.l_margin)
         self.set_font("Helvetica", "B", 10)
-        self.cell(key_width, 6, key + ":", new_x="END")
+        self.cell(key_width, 6, _clean(key + ":"), new_x="END")
         self.set_font("Helvetica", "", 10)
-        self.multi_cell(0, 6, str(value), new_x="LMARGIN", new_y="NEXT")
+        self.multi_cell(0, 6, _clean(str(value)), new_x="LMARGIN", new_y="NEXT")
 
     def table_header(self, cells, widths):
+        self.set_x(self.l_margin)
         self.set_font("Helvetica", "B", 8)
         self.set_fill_color(220, 220, 220)
         for text, width in zip(cells, widths):
-            self.cell(width, 6, str(text)[:28], border=1, fill=True)
+            self.cell(width, 6, _clean(str(text))[:28], border=1, fill=True)
         self.ln()
 
     def table_row(self, cells, widths):
+        self.set_x(self.l_margin)
         self.set_font("Helvetica", "", 8)
         for text, width in zip(cells, widths):
-            self.cell(width, 5.5, str(text)[:30], border=1)
+            self.cell(width, 5.5, _clean(str(text))[:30], border=1)
         self.ln()
 
     def tier_badge(self, tier: str, score: float):
@@ -83,7 +118,7 @@ class SATSAReport(FPDF):
         self.set_fill_color(r, g, b)
         self.set_text_color(255, 255, 255)
         self.set_font("Helvetica", "B", 12)
-        self.cell(80, 10, f"  {tier}  |  Score: {score:.1f}/100", fill=True, align="C")
+        self.cell(80, 10, _clean(f"  {tier}  |  Score: {score:.1f}/100"), fill=True, align="C")
         self.set_text_color(0, 0, 0)
         self.ln(12)
 
@@ -91,32 +126,32 @@ class SATSAReport(FPDF):
         self.ln(6)
         self.set_font("Helvetica", "I", 8)
         self.multi_cell(0, 5,
-                        "DISCLAIMER: This report supports supervisory judgement and does not "
-                        "replace it. Findings are prioritisation signals derived from the "
-                        "entity's own submitted records; all findings should be validated via "
-                        "manual review before regulatory action. Generated fully offline — no "
-                        "data left the generating machine.")
+                        _clean("DISCLAIMER: This report supports supervisory judgement and does not "
+                               "replace it. Findings are prioritisation signals derived from the "
+                               "entity's own submitted records; all findings should be validated via "
+                               "manual review before regulatory action. Generated fully offline -- no "
+                               "data left the generating machine."))
 
 
 def _pct(value, digits=1) -> str:
     try:
         return f"{float(value) * 100:.{digits}f}%"
     except (TypeError, ValueError):
-        return "—"
+        return "-"
 
 
 def _num(value, digits=1) -> str:
     try:
         return f"{float(value):.{digits}f}"
     except (TypeError, ValueError):
-        return "—"
+        return "-"
 
 
 def _int(value) -> str:
     try:
         return f"{int(float(value)):,}"
     except (TypeError, ValueError):
-        return "—"
+        return "-"
 
 
 def build_entity_report(entity_row: dict, findings: list, output_path: str,
@@ -246,6 +281,44 @@ def build_entity_report(entity_row: dict, findings: list, output_path: str,
         pdf.table_row([label, value, direction], widths)
     pdf.ln(4)
 
+    # ── Incident Management & Governance Integrity (IM Family) ───────────
+    pdf.section_title("Incident Management & Governance Integrity (IM-001 - IM-009)")
+    pdf.body_text("Targeted execution gap and integrity metrics measured from submitted case, disposition, "
+                  "and workflow event records.", size=8)
+    im_rows = [
+        ("IM-001 SLA Misreporting Rate", _pct(entity_row.get("sla_misreport_rate")),
+         f"{_int(entity_row.get('sla_misreport_count'))} compliant claims contradicted by timelines"),
+        ("IM-001 SLA Breach Rate", _pct(entity_row.get("sla_breach_rate")),
+         f"Median overrun: {_num(entity_row.get('close_time_over_target_median'))}x target"),
+        ("IM-002 Severity Softening", _pct(entity_row.get("severity_softening_rate")),
+         f"{_int(entity_row.get('severity_softening_count'))} case(s) logged below alert severity"),
+        ("IM-002 Escalation Downgrade Rate", _pct(entity_row.get("escalation_downgrade_rate")),
+         "Escalations downgraded or closed at source"),
+        ("IM-003 Significant Closures Missing Root Cause", _pct(entity_row.get("no_root_cause_gap")),
+         f"From {_int(entity_row.get('significant_closures'))} significant closure records"),
+        ("IM-003 Significant Closures Missing Remediation", _pct(entity_row.get("no_remediation_gap")),
+         "No remediation status or reference documented"),
+        ("IM-004 Investigation Rework Loops", _pct(entity_row.get("rework_loop_rate")),
+         f"{_int(entity_row.get('rework_cases'))} case(s) repeating completed steps"),
+        ("IM-005 Post-Closure Reopen Rate", _pct(entity_row.get("reopen_rate")),
+         f"{_int(entity_row.get('reopened_closures'))} closure(s) subsequently reopened"),
+        ("IM-006 Investigation Trace Gap", _pct(entity_row.get("investigation_gap_rate")),
+         f"{_int(entity_row.get('cases_without_investigation'))} case(s) with zero workflow records"),
+        ("IM-006 Workflow Steps Missing Evidence/Result", _pct(entity_row.get("evidence_gap_rate")),
+         f"From {_int(entity_row.get('investigation_events'))} total workflow events"),
+        ("IM-007 Risk Accepted Without Named Authority", _pct(entity_row.get("risk_accept_no_authority_rate")),
+         f"Overall risk acceptance rate: {_pct(entity_row.get('risk_accept_rate'))}"),
+        ("IM-008 Declared KPI Contradictions", _int(entity_row.get("declared_kpi_contradictions")),
+         "Declared KPI(s) contradicted by operational evidence"),
+        ("IM-009 Investigations Under 2 Minutes", _pct(entity_row.get("investigation_time_anomaly_rate")),
+         f"{_int(entity_row.get('cases_with_thin_investigation'))} case(s); median: {_num(entity_row.get('investigation_minutes_median'))} min"),
+    ]
+    im_widths = [72, 26, 82]
+    pdf.table_header(["Metric / Detector", "Observed", "Operational Detail / Context"], im_widths)
+    for label, val, detail in im_rows:
+        pdf.table_row([label, val, detail], im_widths)
+    pdf.ln(4)
+
     # ── Capability scorecard ─────────────────────────────────────────────
     pdf.section_title("Capability Scorecard")
     pdf.body_text("0 = strong, 100 = weakest. A score is the summed severity of the findings "
@@ -346,7 +419,9 @@ def build_entity_report(entity_row: dict, findings: list, output_path: str,
         pdf.kv_row("Evidence records", _int(f.get("evidence_count", 0)))
         pdf.body_text(f.get("description", ""), size=9)
         pdf.set_font("Helvetica", "I", 9)
-        pdf.multi_cell(0, 5, "Why it was flagged: " + str(f.get("rationale") or "—"))
+        pdf.set_x(pdf.l_margin)
+        pdf.multi_cell(0, 5, _clean("Why it was flagged: " + str(f.get("rationale") or "-")),
+                       new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "", 9)
         try:
             caps = json.loads(f.get("capability_tags") or "[]")
@@ -457,6 +532,43 @@ def build_portfolio_report(entities: list, findings: list, output_path: str,
                            f"{float(row.get('risk_delta', 0) or 0):+.1f}",
                            str(row.get("tier", "")),
                            str(row.get("biggest_movement", ""))[:26]], c_widths)
+    # ── Incident Management & Governance (Portfolio Summary) ─────────────
+    pdf.section_title("Portfolio Incident Management & Integrity Overview")
+    pdf.body_text("Aggregated execution gap and record integrity metrics across all registered CSEs.", size=8)
+
+    total_misreported = sum(int(e.get("sla_misreport_count", 0) or 0) for e in entities)
+    total_softened = sum(int(e.get("severity_softening_count", 0) or 0) for e in entities)
+    total_silent_cases = sum(int(e.get("cases_without_investigation", 0) or 0) for e in entities)
+    total_kpi_contradictions = sum(int(e.get("declared_kpi_contradictions", 0) or 0) for e in entities)
+
+    im_flagged = [e for e in entities if (
+        float(e.get("sla_misreport_rate", 0) or 0) > 0
+        or float(e.get("severity_softening_rate", 0) or 0) > 0
+        or float(e.get("no_root_cause_gap", 0) or 0) > 0.2
+        or int(e.get("declared_kpi_contradictions", 0) or 0) > 0
+    )]
+
+    pdf.kv_row("SLA misreported closures across portfolio", _int(total_misreported))
+    pdf.kv_row("Severity-softened incidents across portfolio", _int(total_softened))
+    pdf.kv_row("Cases closed without investigation workflow", _int(total_silent_cases))
+    pdf.kv_row("Declared KPI contradictions across portfolio", _int(total_kpi_contradictions))
+    pdf.ln(2)
+
+    if im_flagged:
+        pdf.sub_title("Entities with elevated incident management or reporting integrity concerns")
+        im_t_widths = [50, 24, 28, 28, 26, 24]
+        pdf.table_header(["Entity", "SLA Breach", "SLA Misreport", "Softening", "No Root Cause", "KPI Gaps"], im_t_widths)
+        for e in sorted(im_flagged, key=lambda x: (
+            float(x.get("sla_misreport_rate", 0) or 0) + float(x.get("severity_softening_rate", 0) or 0)
+        ), reverse=True)[:15]:
+            pdf.table_row([
+                str(e.get("entity_name", "—"))[:26],
+                _pct(e.get("sla_breach_rate")),
+                _pct(e.get("sla_misreport_rate")),
+                _pct(e.get("severity_softening_rate")),
+                _pct(e.get("no_root_cause_gap")),
+                _int(e.get("declared_kpi_contradictions")),
+            ], im_t_widths)
         pdf.ln(4)
 
     pdf.disclaimer()

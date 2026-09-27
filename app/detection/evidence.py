@@ -163,7 +163,7 @@ def evidence_ids_for(rule_id: str, frames: dict, thresholds: dict | None = None)
             return (table, [], basis)
         if rule_id == "EG-003":
             from features import note_similarity_rate
-            rate, dup_ids = note_similarity_rate(
+            rate, dup_ids, _ = note_similarity_rate(
                 cases["investigation_note_text"],
                 float(thresholds.get("template_cosine_threshold", 0.85)),
                 max_notes=int(thresholds.get("template_note_sample_cap", 5000)))
