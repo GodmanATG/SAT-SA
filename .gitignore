@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.streamlit/secrets.toml
+
+# SAT-SA runtime artefacts
+# The SQLite database is a portable single file, but it is a *data* artefact:
+# rebuild it with `python -m synthetic.submissions && python -m ingestion.bulk`
+app/satsa.db
+app/satsa.db-wal
+app/satsa.db-shm
+app/detection_config.json
+app/uploads/
+submissions/
+backend/.env
+
+# Logs and outputs
+streamlit.log
+*.log
+scratch/
+*.png
+*.pdf
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/

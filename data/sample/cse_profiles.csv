@@ -1,0 +1,7 @@
+cse_id,name,sector,size,soc_model
+356e61ec-dc3c-4be7-bf84-390c47a9e4ab,CSE-ALPHA,power,large,in_house
+bcfda9fd-8a77-4e55-9a9b-03f4d2dcda05,CSE-BETA,banking,large,hybrid
+8b593c71-90f5-4bac-b394-784891d1f16a,CSE-GAMMA,telecom,medium,in_house
+3461979a-61bb-4b88-88af-b60eeb3f4d2d,CSE-DELTA,energy,medium,mssp
+53542362-c83c-4c65-9189-e307226bab7e,CSE-EPSILON,transport,small,in_house
+d683fc97-31a8-4687-b1dd-b752202df86e,CSE-ZETA,healthcare,small,mssp

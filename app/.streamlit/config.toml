@@ -1,0 +1,11 @@
+[theme]
+base="dark"
+primaryColor="#0077b6"
+backgroundColor="#121417"
+secondaryBackgroundColor="#1b1f24"
+textColor="#e2e8f0"
+font="sans serif"
+
+[client]
+showSidebarNavigation=false
+toolbarMode="minimal"

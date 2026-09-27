@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+psycopg2-binary
+pandas
+scikit-learn
+scipy
+python-multipart
+pydantic-settings
+weasyprint
