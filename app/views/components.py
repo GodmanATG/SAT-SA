@@ -286,8 +286,11 @@ def full_evidence_export(finding: dict, *, key: str, label: str | None = None):
     declared = int(finding.get("evidence_count", 0) or 0)
     effective_count = resolved if resolved > 0 else declared
     if resolved:
-        note = (f"Reconstructed **{resolved:,}** record(s) at full population "
-                f"(the stored sample holds {min(declared, 25):,}).")
+        if declared == 0:
+            note = f"Dynamically extracted **{resolved:,}** record(s) at full population for this export."
+        else:
+            note = (f"Reconstructed **{resolved:,}** record(s) at full population "
+                    f"(the inline preview sample holds {min(declared, 25):,}).")
     else:
         note = "This finding has no per-record evidence list (see the export's note column)."
     default_label = (f"⬇️ Download Full CSV ({effective_count:,} records)" if effective_count
