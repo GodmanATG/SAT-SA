@@ -94,30 +94,6 @@ with st.sidebar.expander("Quick Start Guide", expanded=True):
         """
     )
 
-        The app starts **blank** — no demo data is pre-loaded and nothing is analysed until you
-        register at least one Critical Sector Entity and ingest its submission.
-
-        1. **Register & Submissions** → register a CSE by hand (profile + declared controls/KPIs +
-           its files), or bulk-ingest a folder of submissions, or generate a synthetic portfolio.
-        2. **Run analytics** — always across every registered entity, so peer comparison and
-           sector benchmarking stay meaningful. One entity is analysed on its own; it simply has no
-           peers yet.
-        3. **Supervisory Overview** → which entities need attention first, and the 8-dimension
-           capability scorecard behind each score.
-        4. **Finding Cards** → why each entity was flagged, with the rationale and the exact
-           evidence records behind it, plus a prioritised manual-review sample list.
-        5. **Examiner Review** → adjudicate each finding. Verdicts are stored with their rationale
-           and change how the finding counts towards the score.
-        6. **Entity Profile** → one entity's profile, declared-vs-measured reconciliation,
-           submission coverage and measured features.
-        7. **Evidence / Peer / Heatmap / Trends** → verify the raw records, benchmark against peers,
-           and see what is drifting rather than merely bad today.
-        8. **Report Export** → offline PDF per entity or portfolio, plus the audit log.
-        9. **Validation & Methods** → detector performance against known ground truth, and what
-           that evidence does not prove.
-
-        Everything runs locally: no internet, no cloud service, no external AI API.
-        """
     )
 
 if "active_page" not in st.session_state:
