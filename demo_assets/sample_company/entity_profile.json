@@ -1,0 +1,10 @@
+{
+  "entity_name": "HDFC Bank SOC",
+  "sector": "Banking & Finance",
+  "tier": "Tier 1 - Critical",
+  "soc_model": "hybrid",
+  "analyst_count": 8,
+  "soc_coverage": "24x7",
+  "review_period_start": "2026-04-01",
+  "review_period_end": "2026-09-30"
+}
