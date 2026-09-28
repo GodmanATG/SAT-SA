@@ -83,7 +83,7 @@ def _load_findings() -> pd.DataFrame:
 
 
 def render():
-    st.title("🧪 Validation & Methods")
+    st.title(" Validation & Methods")
     st.caption("How well the detectors do against known ground truth - and what that evidence does and "
                "does not prove.")
 
@@ -174,7 +174,7 @@ def render():
             st.info("No findings have been adjudicated by an examiner yet. The synthetic numbers "
                     "above measure the detectors against injected patterns; only examiner "
                     "adjudication (Examiner Review page) measures them against human judgement.",
-                    icon="🧑‍⚖️")
+                    icon="‍️")
 
     st.markdown("---")
     st.subheader("Per-detector performance")

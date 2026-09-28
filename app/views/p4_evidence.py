@@ -113,7 +113,7 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
         ddf = ddf[case_ids.isin(["", "nan", "None"])]
 
     # Search
-    search = st.text_input("🔎 Search alert ID, hostname, category or notes")
+    search = st.text_input(" Search alert ID, hostname, category or notes")
     if search:
         mask = pd.Series(False, index=ddf.index)
         for col in ["alert_id", "hostname", "investigator_notes", "alert_category",

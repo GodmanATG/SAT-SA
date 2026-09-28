@@ -11,7 +11,7 @@ from database import db_stats, vacuum_db
 
 
 def render():
-    st.title("⚙️ Settings")
+    st.title("️ Settings")
     st.caption(
         "All detection thresholds, reference benchmarks and scoring weights live in an editable "
         "JSON config (`app/detection_config.json`) — never hardcoded, and never trained from data. "
@@ -267,24 +267,24 @@ def render():
                 help="Flag trends with p-value below this (stricter = lower)",
             )
 
-        if st.button("🔍 Save and re-run analytics now", key="thresh_apply_run", type="primary"):
+        if st.button(" Save and re-run analytics now", key="thresh_apply_run", type="primary"):
             # Save first, then run: the point of re-running from here is to see the effect of
             # the values on screen, so they must be the values the engine actually reads.
             save_config(current)
             from views.components import run_detection_with_progress
             summary = run_detection_with_progress("Re-running analytics with the saved thresholds")
-            st.success(f"✅ Thresholds saved and applied — {summary['entities']} entities · "
+            st.success(f" Thresholds saved and applied — {summary['entities']} entities · "
                        f"{summary['findings']} findings · {summary['cycle_label']} · "
                        f"{summary['duration_s']}s. A new cycle snapshot was recorded.")
 
         st.markdown("---")
         col_save, col_reset = st.columns(2)
         with col_save:
-            if st.button("💾 Save Thresholds", type="primary"):
+            if st.button(" Save Thresholds", type="primary"):
                 save_config(current)
-                st.success("✅ Thresholds saved! Run detection again to apply.")
+                st.success(" Thresholds saved! Run detection again to apply.")
         with col_reset:
-            if st.button("🔄 Reset to Defaults"):
+            if st.button(" Reset to Defaults"):
                 save_config(DEFAULT_THRESHOLDS)
                 st.success("Thresholds reset to defaults.")
                 st.rerun()
@@ -316,9 +316,9 @@ def render():
             benchmarks["reference_label"] = st.text_input(
                 "Reference basis (appears in every benchmark finding rationale)",
                 value=str(benchmarks.get("reference_label", "Illustrative SOC survey medians")))
-        if st.button("💾 Save benchmarks", type="primary"):
+        if st.button(" Save benchmarks", type="primary"):
             save_config(load_config(), {"benchmarks": benchmarks})
-            st.success("✅ Benchmarks saved — re-run detection to apply.")
+            st.success(" Benchmarks saved — re-run detection to apply.")
 
     # ── Tab 3: Capability Weights ────────────────────────────────────────
     with tab_weights:
@@ -338,10 +338,10 @@ def render():
                 key=f"weight_{cap_id}",
             )
 
-        if st.button("💾 Save Weights", type="primary"):
+        if st.button(" Save Weights", type="primary"):
             # save_config merges sections, so saving weights never clobbers thresholds
             save_config(load_config(), {"capability_weights": weights})
-            st.success("✅ Capability weights saved!")
+            st.success(" Capability weights saved!")
         st.caption("A capability's score is the weighted sum of the severity of findings tagged to it. "
                    "Raising a weight makes that capability dominate the scorecard average inside the "
                    "composite risk score.")
@@ -361,7 +361,7 @@ def render():
         st.markdown("---")
         col_a, col_b = st.columns(2)
         with col_a:
-            if st.button("🧹 Compact database (VACUUM)"):
+            if st.button(" Compact database (VACUUM)"):
                 result = vacuum_db()
                 st.success(f"Reclaimed {result['saved'] / 1024 / 1024:.1f} MB — now {result['size_mb']} MB.")
                 st.rerun()
@@ -395,10 +395,10 @@ def render():
         across Critical Sector Entities.
 
         **Key Design Principles:**
-        - 🔒 **Fully offline** — no cloud, no internet, no external APIs
-        - 📊 **Explainable** — every finding links to evidence records
-        - ⚙️ **Configurable** — all thresholds and weights are editable
-        - 🏗️ **Modular** — new detection rules can be added without rebuilding
+        -  **Fully offline** — no cloud, no internet, no external APIs
+        -  **Explainable** — every finding links to evidence records
+        - ️ **Configurable** — all thresholds and weights are editable
+        - ️ **Modular** — new detection rules can be added without rebuilding
 
         **Detection Engine (22 detectors + a data-quality gate, all explainable):**
         - **7 Execution Gap** rules — fast closures (EG-001), missing escalation (EG-002),

@@ -166,7 +166,7 @@ CAPABILITY_COLUMNS = {
 
 # Severity label -> indicator. Used by every page that lists findings, so that a High
 # finding looks the same on the Finding Cards, the Examiner queue and the Entity Profile.
-SEVERITY_ICON = {"High": "🔴", "Medium": "🟠", "Low": "🟡"}
+SEVERITY_ICON = {"High": "", "Medium": "", "Low": ""}
 
 # ---------------------------------------------------------------------------
 # Risk Tier Definitions
@@ -339,11 +339,11 @@ ADJUDICATION_VERDICTS = [
 # Verdict -> indicator, kept beside the verdict list so a new verdict cannot be added
 # without its icon being visible in the same place.
 VERDICT_ICON = {
-    "Confirmed": "✅",
-    "Not material": "➖",
+    "Confirmed": "",
+    "Not material": "",
     "Expected": "ℹ️",
-    "Needs more data": "❓",
-    "False positive": "❌",
+    "Needs more data": "",
+    "False positive": "",
 }
 
 # Verdicts that stop a finding from counting towards the entity's score. Findings

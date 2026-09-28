@@ -29,10 +29,10 @@ from database import get_db, latest_adjudications, log_action, record_adjudicati
 from views.components import full_evidence_export, recalculate_button  # noqa: E402
 
 TYPE_ICON = {
-    "execution_gap": "⚙️ Execution gap",
-    "negative_space": "🕳️ Negative space",
-    "peer_anomaly": "📊 Peer / trend",
-    "data_quality": "📋 Data quality",
+    "execution_gap": "️ Execution gap",
+    "negative_space": "️ Negative space",
+    "peer_anomaly": " Peer / trend",
+    "data_quality": " Data quality",
 }
 GROUP_LABEL = {
     "rule": "Rule-based detector (deterministic threshold)",
@@ -78,7 +78,7 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
     # of them is hundreds of identical controls for one portfolio-wide action.
     recalculate_button(
         "finding_cards_page",
-        label="🔄 Recalculate scores now",
+        label=" Recalculate scores now",
         caption="Applies every verdict recorded so far — findings judged *False positive* or "
                 "*Expected* stop counting towards their entity's capability scores and risk "
                 "score. This also refreshes every other entity and records a new cycle snapshot.",
@@ -124,7 +124,7 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
     for f in view.to_dict("records"):
         with st.container(border=True):
             verdict = f.get("examiner_verdict", "")
-            verdict_tag = (f" &nbsp;|&nbsp; 🧑‍⚖️ **{verdict}**"
+            verdict_tag = (f" &nbsp;|&nbsp; ‍️ **{verdict}**"
                            + (" *(not counted)*" if is_non_counting(verdict) else "")
                            ) if verdict else ""
             st.markdown(
@@ -149,7 +149,7 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
             except (json.JSONDecodeError, TypeError):
                 caps = []
             if caps:
-                st.caption("🏷️ Capabilities affected: " +
+                st.caption("️ Capabilities affected: " +
                            ", ".join(f"{c} ({CAPABILITY_NAMES.get(c, c)})" for c in caps))
 
             count = int(f.get("evidence_count") or 0)
@@ -160,11 +160,11 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
             sample_len = len(sample)
             if count:
                 shown = ", ".join(str(s) for s in sample[:5])
-                st.caption(f"📎 **{count:,}** total flagged record(s) *(inline preview sample of {min(count, sample_len or 25)} IDs: `{shown}`"
+                st.caption(f" **{count:,}** total flagged record(s) *(inline preview sample of {min(count, sample_len or 25)} IDs: `{shown}`"
                            + (" …" if count > 5 else "")
                            + ")*")
             else:
-                st.caption("📎 Derived from the absence of expected records (negative space) — "
+                st.caption(" Derived from the absence of expected records (negative space) — "
                            "verify via the inventory / coverage views.")
 
             # Prominent Download Full CSV button for examiners needing all records
@@ -174,7 +174,7 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
             )
 
             # ── inline adjudication: the examiner's judgement, recorded where it is formed ──
-            with st.expander("🧑‍⚖️ Examiner verdict" + (f" — currently **{verdict}**" if verdict else "")):
+            with st.expander("‍️ Examiner verdict" + (f" — currently **{verdict}**" if verdict else "")):
                 if is_non_counting(verdict):
                     st.caption("This finding is excluded from the entity's score. It stays visible "
                                "here for audit, and recording a new verdict changes that.")

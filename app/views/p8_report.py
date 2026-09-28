@@ -43,7 +43,7 @@ def render(filtered_metrics: pd.DataFrame):
         entity_names = sorted(filtered_metrics["entity_name"].tolist())
         rep_entity = st.selectbox("Select entity", entity_names, key="rep_entity")
 
-        if st.button("📄 Generate Entity Report", type="primary"):
+        if st.button(" Generate Entity Report", type="primary"):
             row = filtered_metrics[filtered_metrics["entity_name"] == rep_entity].iloc[0]
             entity_id = row["entity_id"]
 
@@ -106,7 +106,7 @@ def render(filtered_metrics: pd.DataFrame):
         st.markdown("**Full Portfolio Report**")
         st.caption(f"Summary report covering all {len(filtered_metrics)} entities.")
 
-        if st.button("📄 Generate Portfolio Report", type="primary"):
+        if st.button(" Generate Portfolio Report", type="primary"):
             # Load all findings, the cycle movement and the register's criticality tiers
             with get_db() as conn:
                 findings_rows = conn.execute(
@@ -202,7 +202,7 @@ def render(filtered_metrics: pd.DataFrame):
 
     # ── Audit Log ────────────────────────────────────────────────────────
     st.markdown("---")
-    st.subheader("📋 Audit Log")
+    st.subheader(" Audit Log")
     st.caption("Append-only record of uploads, ingestion, detection runs and config changes. "
                "Each detection run logs the exact thresholds used, so any result can be reproduced "
                "and defended.")

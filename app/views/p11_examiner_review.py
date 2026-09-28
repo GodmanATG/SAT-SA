@@ -64,7 +64,7 @@ def _load_findings(entity_filter=None):
 
 
 def render(entity_ids=None):
-    st.title("🧑‍⚖️ Examiner Review")
+    st.title("‍️ Examiner Review")
     st.caption("Adjudicate each finding. Your verdict is stored with its rationale, survives "
                "re-analysis, and changes how the finding counts towards the entity's score.")
 
@@ -97,7 +97,7 @@ def render(entity_ids=None):
     # next morning, could otherwise not apply their decisions without first re-selecting a row.
     recalculate_button(
         "examiner_page",
-        label="🔄 Recalculate scores now",
+        label=" Recalculate scores now",
         caption="A verdict of *False positive* or *Expected* stops a finding counting towards the "
                 "entity's capability scores and risk score, but only once the analytics re-run. "
                 "This also refreshes every other entity and records a new cycle snapshot.",
@@ -282,7 +282,7 @@ def render(entity_ids=None):
     if finding.get("evidence_count"):
         st.caption(f"{finding['evidence_count']:,} supporting record(s); sample stored: "
                    f"{(finding.get('evidence_ids') or '[]')[:400]}")
-    with st.expander("📎 Full evidence export"):
+    with st.expander(" Full evidence export"):
         st.caption("Every record behind this finding, reconstructed at full population rather "
                    "than the capped sample stored with it.")
         full_evidence_export(finding, key=f"adj_{finding['finding_id']}")
@@ -292,16 +292,16 @@ def render(entity_ids=None):
     if just_adj:
         st.success(f"Recorded **{just_adj['verdict']}** for `{just_adj['rule_id']}`.")
         rc_c1, rc_c2 = st.columns([1, 2])
-        if rc_c1.button("🔄 Recalculate Scores Now", key=f"instant_recalc_btn_{just_adj['finding_id']}", type="primary"):
+        if rc_c1.button(" Recalculate Scores Now", key=f"instant_recalc_btn_{just_adj['finding_id']}", type="primary"):
             from views.components import run_detection_with_progress
             summary = run_detection_with_progress("Recalculating scores")
-            st.success(f"✅ Recalculated — {summary['entities']} entities · {summary['findings']} findings.")
+            st.success(f" Recalculated — {summary['entities']} entities · {summary['findings']} findings.")
             st.rerun()
         rc_c2.caption("Instantly refresh entity risk scores and capability scorecards without leaving this review page.")
 
     just_recalc = st.session_state.pop("just_recalculated", None)
     if just_recalc:
-        st.success(f"✅ Verdict saved and scores instantly recalculated! {just_recalc['entities']} entities · "
+        st.success(f" Verdict saved and scores instantly recalculated! {just_recalc['entities']} entities · "
                    f"{just_recalc['findings']} findings · Duration: {just_recalc['duration_s']}s.")
 
     with st.form(key=f"adj_form_{finding['finding_id']}", clear_on_submit=False):
@@ -319,8 +319,8 @@ def render(entity_ids=None):
         examiner = st.text_input("Examiner name / initials", value="supervisor", key="adj_examiner")
         
         btn_c1, btn_c2 = st.columns([1, 1])
-        submitted = btn_c1.form_submit_button("💾 Save Verdict", type="secondary")
-        submitted_recalc = btn_c2.form_submit_button("⚡ Save & Recalculate Now", type="primary")
+        submitted = btn_c1.form_submit_button(" Save Verdict", type="secondary")
+        submitted_recalc = btn_c2.form_submit_button(" Save & Recalculate Now", type="primary")
 
     if submitted or submitted_recalc:
         if verdict != "Confirmed" and not rationale.strip():
@@ -347,7 +347,7 @@ def render(entity_ids=None):
     # Recalculate option right on the review section
     recalculate_button(
         f"inline_{finding['finding_id']}",
-        label="🔄 Recalculate scores now",
+        label=" Recalculate scores now",
         caption="Instantly apply verdicts — findings judged False positive or Expected will be excluded from scoring.",
         columns=(1, 2)
     )

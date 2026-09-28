@@ -154,13 +154,13 @@ def render(filtered_metrics: pd.DataFrame):
         change = second_half - first_half
 
         if worse_is_up is None:
-            direction = "📊 Volume"
+            direction = " Volume"
         elif abs(change) <= noise_floor:
-            direction = "➡️ Stable"
+            direction = "️ Stable"
         elif (change > 0) == worse_is_up:
-            direction = "🔺 Worsening"
+            direction = " Worsening"
         else:
-            direction = "🔻 Improving"
+            direction = " Improving"
 
         st.caption(f"**{entity}**: {direction} (first half vs second half: {change:+.2f})")
 

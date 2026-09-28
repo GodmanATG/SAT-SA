@@ -218,13 +218,13 @@ def _entity_form(prefix: str, existing: dict | None = None):
 # ---------------------------------------------------------------------------
 
 def render():
-    st.title("📁 Register & Submissions")
+    st.title(" Register & Submissions")
     st.caption("A blank register by design. Add a Critical Sector Entity, load its submitted records, "
                "then run the analytics. Nothing is pre-loaded and nothing is analysed until you do.")
 
     tab_add, tab_manage, tab_bulk, tab_api, tab_demo = st.tabs([
-        "➕ Register a CSE", "🏢 Entity Register", "📦 Bulk Ingest", "🔌 API Polling",
-        "🧪 Generate & Maintenance"])
+        " Register a CSE", " Entity Register", " Bulk Ingest", " API Polling",
+        " Generate & Maintenance"])
 
     # ── Tab 1: register one entity ───────────────────────────────────────
     with tab_add:
@@ -249,8 +249,8 @@ def render():
             type=sorted(DATA_EXTENSIONS | DOC_EXTENSIONS))
 
         c_save, c_save_run = st.columns([1, 1])
-        save_clicked = c_save.button("💾 Save entity profile", type="primary", width="stretch")
-        save_run_clicked = c_save_run.button("💾 Save, ingest files and run analytics",
+        save_clicked = c_save.button(" Save entity profile", type="primary", width="stretch")
+        save_run_clicked = c_save_run.button(" Save, ingest files and run analytics",
                                              width="stretch",
                                              disabled=not uploaded)
 
@@ -285,13 +285,13 @@ def render():
                                f"{action.title()} '{values['entity_name']}' "
                                f"(tier {values['tier']}, sector {values['sector']})")
 
-                st.success(f"✅ **{values['entity_name']}** saved to the register as `{entity_id}` "
+                st.success(f" **{values['entity_name']}** saved to the register as `{entity_id}` "
                            f"({action}).")
 
                 # Canonical ingestion path: identical to the bulk loader's
                 if structured:
                     summary = ingest_submission_folder(folder, profile_override=profile)
-                    st.success(f"✅ Submission ingested for **{values['entity_name']}**.")
+                    st.success(f" Submission ingested for **{values['entity_name']}**.")
                     # The validation card is what tells the supervisor whether the tool
                     # understood the file - a row count alone cannot.
                     ingest_summary_card(summary)
@@ -306,14 +306,14 @@ def render():
                             parsed = parse_file(handle, doc)
                         if isinstance(parsed, dict):
                             ingest_document(parsed, entity_id, doc, detect_file_type(doc))
-                            st.info(f"📄 `{doc}` stored as a supporting document "
+                            st.info(f" `{doc}` stored as a supporting document "
                                     f"({len(parsed.get('referenced_ids', []))} referenced IDs extracted)")
                     except Exception as exc:
                         st.warning(f"Could not read `{doc}`: {exc}")
 
                 if save_run_clicked:
                     summary = _run_detection_with_progress()
-                    st.success(f"✅ Analysed {summary['entities']} entities across "
+                    st.success(f" Analysed {summary['entities']} entities across "
                                f"{summary['alerts']:,} alerts → {summary['findings']} findings "
                                f"({summary['duration_s']}s). Open **Risk Ranking**.")
                     st.rerun()
@@ -328,8 +328,8 @@ def render():
                 "SELECT * FROM entities ORDER BY tier, entity_name").fetchall()]
 
         if not entities:
-            st.info("The register is empty. Use **➕ Register a CSE** to add the first entity, or "
-                    "**📦 Bulk Ingest** to load a folder of submissions.")
+            st.info("The register is empty. Use ** Register a CSE** to add the first entity, or "
+                    "** Bulk Ingest** to load a folder of submissions.")
         else:
             st.markdown("##### Filter")
             f1, f2, f3 = st.columns(3)
@@ -385,14 +385,14 @@ def render():
                 selected = visible[names.index(choice)]
                 entity_id = selected["entity_id"]
 
-                tab_edit, tab_files, tab_remove = st.tabs(["✏️ Edit profile", "📥 Submission files",
-                                                          "🗑️ Withdraw"])
+                tab_edit, tab_files, tab_remove = st.tabs(["️ Edit profile", " Submission files",
+                                                          "️ Withdraw"])
 
                 with tab_edit:
                     st.caption("Every field is editable. Saving updates the register entry in place — "
                                "the entity id, and therefore all its ingested records, does not change.")
                     values, kpis, controls = _entity_form("edit", selected)
-                    if st.button("💾 Save changes", type="primary", key="reg_edit_save"):
+                    if st.button(" Save changes", type="primary", key="reg_edit_save"):
                         if not values["entity_name"]:
                             st.error("Entity name cannot be empty.")
                         else:
@@ -426,7 +426,7 @@ def render():
                                            accept_multiple_files=True, key=f"up_{entity_id}",
                                            type=sorted(DATA_EXTENSIONS | DOC_EXTENSIONS))
                     c1, c2 = st.columns(2)
-                    if c1.button("📥 Save & ingest these files", disabled=not more, type="primary"):
+                    if c1.button(" Save & ingest these files", disabled=not more, type="primary"):
                         target = pathlib.Path(folder) if folder else \
                             SUBMISSIONS_DIR / _safe_slug(selected["entity_name"])
                         target.mkdir(parents=True, exist_ok=True)
@@ -447,11 +447,11 @@ def render():
                         ingest_summary_card(summary)
                         for warning in summary.get("warnings", []):
                             st.warning(warning)
-                    if c2.button("🔄 Re-ingest all files on disk"):
+                    if c2.button(" Re-ingest all files on disk"):
                         summary = reingest_entity(entity_id, root=SUBMISSIONS_DIR)
                         st.success("Re-ingested from disk.")
                         ingest_summary_card(summary)
-                    if folder and st.button("🔍 Validate the folder without loading it",
+                    if folder and st.button(" Validate the folder without loading it",
                                             key=f"val_{entity_id}"):
                         report = validate_submission_folder(folder)
                         st.caption("Dry run — nothing was written to the database.")
@@ -465,7 +465,7 @@ def render():
                                f"are left untouched.")
                     confirm = st.checkbox("I understand this cannot be undone",
                                           key=f"del_confirm_{entity_id}")
-                    if st.button("🗑️ Withdraw entity", disabled=not confirm,
+                    if st.button("️ Withdraw entity", disabled=not confirm,
                                  key=f"del_{entity_id}"):
                         with get_db() as conn:
                             removed = delete_entity(conn, entity_id)
@@ -478,19 +478,19 @@ def render():
 
             st.markdown("---")
             c_run, c_vac = st.columns([2, 1])
-            if c_run.button("🔍 Run analytics across all registered entities", type="primary"):
+            if c_run.button(" Run analytics across all registered entities", type="primary"):
                 summary = _run_detection_with_progress()
-                st.success(f"✅ {summary['entities']} entities · {summary['alerts']:,} alerts · "
+                st.success(f" {summary['entities']} entities · {summary['alerts']:,} alerts · "
                            f"{summary['findings']} findings in {summary['duration_s']}s.")
                 st.rerun()
-            if c_vac.button("🧹 Compact database"):
+            if c_vac.button(" Compact database"):
                 result = vacuum_db()
                 st.success(f"Reclaimed {result['saved'] / 1024 / 1024:.1f} MB — now "
                            f"{result['size_mb']} MB.")
 
     # ── Tab 3: bulk ingest ───────────────────────────────────────────────
     with tab_bulk:
-        st.markdown("### 📦 Bulk ingest a folder of CSE submissions")
+        st.markdown("###  Bulk ingest a folder of CSE submissions")
         st.caption(
             "A submission is a folder: an entity cover sheet (`entity_profile.json`) plus alert, "
             "case, investigation-workflow, escalation, disposition and inventory exports. Point the "
@@ -506,7 +506,7 @@ def render():
 
         limit = st.number_input("Limit to first N folders (0 = all)", min_value=0, value=0, step=1)
         cval, cing = st.columns(2)
-        if cval.button("🔍 Validate all folders (dry run)", disabled=not found):
+        if cval.button(" Validate all folders (dry run)", disabled=not found):
             reports = [validate_submission_folder(f) for f in
                        (found[:int(limit)] if limit else found)]
             total_rows = sum(r["total_rows"] for r in reports)
@@ -520,13 +520,13 @@ def render():
                            "entity rather than silently suggesting there was nothing to find.")
             for report in reports:
                 if report.get("warnings"):
-                    with st.expander(f"⚠️ {report['name']}"):
+                    with st.expander(f"️ {report['name']}"):
                         validate_folder_card(report)
             st.caption("Expand a folder above for the per-file column detail. If a submission "
                        "cannot be parsed, the ingest reports it per file rather than failing the "
                        "whole batch.")
 
-        if cing.button("📥 Register & ingest submissions", type="primary", disabled=not found):
+        if cing.button(" Register & ingest submissions", type="primary", disabled=not found):
             bar = st.progress(0.0, text="Ingesting...")
             results = bulk_ingest(
                 root, limit=int(limit) or None,
@@ -534,7 +534,7 @@ def render():
             bar.empty()
             ok = [r for r in results if r["entity_id"]]
             rows = sum(sum(r.get("rows", {}).values()) for r in ok)
-            st.success(f"✅ Registered {len(ok)} entities and ingested {rows:,} records.")
+            st.success(f" Registered {len(ok)} entities and ingested {rows:,} records.")
             failed = [r for r in results if not r["entity_id"]]
             for r in failed:
                 st.error(f"{r['entity_name']}: " + "; ".join(r.get("warnings", ["failed"])))
@@ -554,11 +554,11 @@ def render():
                 st.warning(f"{len(flagged)} submission(s) need attention — see the file-level "
                            f"detail below.")
                 for r in flagged:
-                    with st.expander(f"⚠️ {r['entity_name']}"):
+                    with st.expander(f"️ {r['entity_name']}"):
                         ingest_summary_card(r)
 
         st.markdown("---")
-        st.markdown("### 🧾 Coverage checklist")
+        st.markdown("###  Coverage checklist")
         st.caption("Which of the six submission field groups the register actually holds, per entity. "
                    "An absent group is itself supervisory-relevant: a case-management file that was "
                    "never submitted is not the same as one that shows nothing wrong.")
@@ -582,7 +582,7 @@ def render():
 
     # ── Tab 4: API polling ───────────────────────────────────────────────
     with tab_api:
-        st.markdown("### 🔌 Ingest from a SOC platform API")
+        st.markdown("###  Ingest from a SOC platform API")
         st.caption(
             "The problem statement asks for ingestion of \"CSV, JSON, database exports and APIs "
             "where available\". This pulls the same six field groups over REST and feeds them "
@@ -620,7 +620,7 @@ def render():
             sector = e2.selectbox("CII sector", SECTORS, key="api_new_sector")
             tier = e3.selectbox("Criticality tier", CRITICALITY_TIERS, index=2, key="api_new_tier")
 
-        if st.button("🔌 Poll the endpoint and ingest", type="primary",
+        if st.button(" Poll the endpoint and ingest", type="primary",
                      disabled=not entity_name):
             profile = ApiProfile(entity_name=entity_name,
                                  sector=sector or "Strategic & Public Enterprises",
@@ -635,7 +635,7 @@ def render():
                 bar.progress(1.0, text="Done")
                 bar.empty()
                 if result["tables"]:
-                    st.success(f"✅ Polled {sum(result['tables'].values()):,} record(s) for "
+                    st.success(f" Polled {sum(result['tables'].values()):,} record(s) for "
                                f"**{entity_name}**.")
                     ingest_summary_card(result)
                 else:
@@ -681,7 +681,7 @@ def render():
                 st.info("Mock endpoint stopped.")
             else:
                 st.caption("No mock endpoint started by this session.")
-        if s3.button("🩺 Check health"):
+        if s3.button(" Check health"):
             import urllib.request
             try:
                 with urllib.request.urlopen(f"http://127.0.0.1:{mock_port}/api/health",
@@ -697,7 +697,7 @@ def render():
 
     # ── Tab 5: generation + maintenance ──────────────────────────────────
     with tab_demo:
-        st.markdown("### 🧪 Generate a synthetic CSE portfolio (offline, seeded)")
+        st.markdown("###  Generate a synthetic CSE portfolio (offline, seeded)")
         from synthetic.submissions import ROSTER
         st.caption(
             f"Writes one submission folder per Critical Sector Entity — {len(ROSTER)} fictional CSEs "
@@ -737,17 +737,17 @@ def render():
                     for name in drift))
 
         c_gen, c_all = st.columns(2)
-        if c_gen.button("🏭 Generate submission folders"):
+        if c_gen.button(" Generate submission folders"):
             from synthetic.submissions import write_submissions
             with st.spinner("Simulating six months of SOC records..."):
                 res = write_submissions(out_dir, companies=int(n_cse), days=int(d_days),
                                         alerts_per_asset_day=float(rate), cycle=int(gen_cycle))
-            st.success(f"✅ {res['companies']} folders (cycle {res['cycle']}) written to "
+            st.success(f" {res['companies']} folders (cycle {res['cycle']}) written to "
                        f"`{res['out_dir']}` · {res['total_alerts']:,} alerts · "
                        f"{res['total_cases']:,} cases · {res['total_investigations']:,} "
                        f"investigation events · {res['total_dispositions']:,} dispositions.")
             st.info("Then use **Bulk Ingest**, or the one-click button beside this.")
-        if c_all.button("⚡ Generate, ingest and analyse", type="primary"):
+        if c_all.button(" Generate, ingest and analyse", type="primary"):
             from synthetic.submissions import write_submissions
             with st.spinner("Generating submissions..."):
                 res = write_submissions(out_dir, companies=int(n_cse), days=int(d_days),
@@ -755,18 +755,18 @@ def render():
             with st.spinner("Registering and ingesting..."):
                 results = bulk_ingest(out_dir)
             summary = _run_detection_with_progress()
-            st.success(f"✅ {res['companies']} CSEs (cycle {res['cycle']}) · "
+            st.success(f" {res['companies']} CSEs (cycle {res['cycle']}) · "
                        f"{sum(sum(r.get('rows', {}).values()) for r in results):,} records · "
                        f"{summary['findings']} findings · {summary['cycle_label']} "
                        f"({summary['run_id']}) recorded.")
             if int(gen_cycle) > 1:
-                st.info("Open **🏢 Entity Profile** and expand *Changes since the last cycle* on any "
+                st.info("Open ** Entity Profile** and expand *Changes since the last cycle* on any "
                         "drifted entity to see the movement, or use the portfolio movement table on "
                         "the Risk Ranking page.")
             st.rerun()
 
         st.markdown("---")
-        st.markdown("### 💾 Storage & maintenance")
+        st.markdown("###  Storage & maintenance")
         stats = db_stats()
         s1, s2, s3, s4, s5 = st.columns(5)
         s1.metric("Database size", f"{stats['size_mb']} MB")
@@ -785,9 +785,9 @@ def render():
                        f"the Validation page will score detectors against it.")
 
         st.markdown("---")
-        st.markdown("**⚠️ Danger zone**")
+        st.markdown("**️ Danger zone**")
         confirm = st.checkbox("I understand this deletes all ingested data and findings")
-        if st.button("🗑️ Clear all data", disabled=not confirm):
+        if st.button("️ Clear all data", disabled=not confirm):
             with get_db() as conn:
                 for table in ("audit_log", "adjudications", "monthly_metrics", "findings", "metric_snapshots", "entity_metrics",
                               "documents", "investigations", "dispositions", "escalations",

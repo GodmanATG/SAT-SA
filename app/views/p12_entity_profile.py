@@ -98,7 +98,7 @@ def _fmt(value, kind: str) -> str:
 
 
 def render(entity_ids=None):
-    st.title("🏢 Entity Profile & Declarations")
+    st.title(" Entity Profile & Declarations")
     st.caption("What the entity submitted, what it declares about itself, and whether its own "
                "records support those declarations.")
 
@@ -231,25 +231,25 @@ def render(entity_ids=None):
 
     # ── measured features ────────────────────────────────────────────────
     st.markdown("---")
-    st.subheader("Measured operational features")
-    if not row:
-        st.info("No metrics computed yet for this entity — run the analytics.")
-    else:
-        rows = []
-        for key, label, kind, worse in METRIC_VIEW:
-            if key not in row:
-                continue
-            rows.append(dict(
-                Feature=label,
-                Value=_fmt(row.get(key), kind),
-                Direction={"high": "higher is worse", "low": "lower is worse",
-                           None: "context"}[worse],
-                Source=("key: " + key),
-            ))
-        st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
-        st.caption("Every detector reads from this same named feature set, so a finding can always be "
-                   "traced back to the value that produced it. Columns show the raw metric key used "
-                   "in threshold configuration.")
+    with st.expander("View Raw Feature Measurements & Technical Evidence", expanded=False):
+        if not row:
+            st.info("No metrics computed yet for this entity - run the analytics.")
+        else:
+            rows = []
+            for key, label, kind, worse in METRIC_VIEW:
+                if key not in row:
+                    continue
+                rows.append(dict(
+                    Feature=label,
+                    Value=_fmt(row.get(key), kind),
+                    Direction={"high": "higher is worse", "low": "lower is worse",
+                               None: "context"}[worse],
+                    Source=("key: " + key),
+                ))
+            st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
+            st.caption("Every detector reads from this same named feature set, so a finding can always be "
+                       "traced back to the value that produced it. Columns show the raw metric key used "
+                       "in threshold configuration.")
 
     # ── cycle over cycle ─────────────────────────────────────────────────
     st.markdown("---")
@@ -324,7 +324,7 @@ def render(entity_ids=None):
             st.caption("No audit entries recorded for this entity.")
 
     st.download_button(
-        "⬇️ Export this entity's record (JSON)",
+        "Export this entity's record (JSON)",
         json.dumps(dict(entity={k: v for k, v in entity.items()}, metrics=row),
                    indent=2, default=str).encode("utf-8"),
         file_name=f"sat-sa-{(entity.get('entity_name') or 'entity').replace(' ', '_')}.json",

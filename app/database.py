@@ -11,12 +11,22 @@ import pathlib
 from datetime import datetime
 from contextlib import contextmanager
 
-DB_PATH = pathlib.Path(__file__).parent / "satsa.db"
+
+def get_default_db_path():
+    try:
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+        ctx = get_script_run_ctx()
+        if ctx and getattr(ctx, "session_id", None):
+            return pathlib.Path(__file__).parent / f"satsa_{ctx.session_id}.db"
+    except Exception:
+        pass
+    return pathlib.Path(__file__).parent / "satsa.db"
+
 
 
 def get_connection(db_path: str | pathlib.Path | None = None) -> sqlite3.Connection:
     """Get a SQLite connection with row_factory set."""
-    path = str(db_path or DB_PATH)
+    path = str(db_path or get_default_db_path())
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
@@ -40,22 +50,20 @@ def get_db(db_path=None):
         conn.close()
 
 
-_schema_ready = False
 
+_schema_ready_paths = set()
 
 def ensure_schema(db_path=None) -> bool:
     """Create the schema if this process has not already done so. Returns True if it ran.
-
-    Any ingestion path can be used headlessly (``python -m ingestion.bulk`` on a fresh
-    checkout, before the Streamlit app has ever been started), so the schema cannot be
-    assumed to already exist. This is the once-per-process guard those paths call.
+    Guards against running DDL continuously on every request, but ensures it runs per-user DB.
     """
-    global _schema_ready
-    if _schema_ready:
+    path = str(db_path or get_default_db_path())
+    if path in _schema_ready_paths:
         return False
     init_db(db_path)
-    _schema_ready = True
+    _schema_ready_paths.add(path)
     return True
+
 
 
 def init_db(db_path=None):
@@ -261,7 +269,7 @@ def migrate_schema(conn) -> list[str]:
 
 def vacuum_db(db_path=None) -> dict:
     """Reclaim unused space and flush the WAL. Returns before/after sizes (bytes)."""
-    path = pathlib.Path(db_path or DB_PATH)
+    path = pathlib.Path(db_path or get_default_db_path())
     before = path.stat().st_size if path.exists() else 0
     with get_db(path) as conn:
         conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
@@ -275,7 +283,7 @@ def vacuum_db(db_path=None) -> dict:
 
 def db_stats(db_path=None) -> dict:
     """Row counts + on-disk footprint, used by the Settings / Data pages."""
-    path = pathlib.Path(db_path or DB_PATH)
+    path = pathlib.Path(db_path or get_default_db_path())
     tables = ["entities", "alerts", "cases", "escalations", "asset_inventory",
               "investigations", "dispositions", "findings", "adjudications",
               "entity_metrics", "monthly_metrics", "metric_snapshots", "documents",

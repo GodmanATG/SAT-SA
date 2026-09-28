@@ -78,7 +78,7 @@ def run_detection_with_progress(caption: str = "Recalculating scores"):
     return summary
 
 
-def recalculate_button(key: str, *, label: str = "🔄 Recalculate scores now",
+def recalculate_button(key: str, *, label: str = " Recalculate scores now",
                        caption: str | None = None, columns=(1, 3)):
     """A one-click re-run, for the moment right after an examiner records a verdict.
 
@@ -96,7 +96,7 @@ def recalculate_button(key: str, *, label: str = "🔄 Recalculate scores now",
     left, _right = st.columns(columns)
     if left.button(label, key=f"recalc_{key}", type="primary"):
         summary = run_detection_with_progress()
-        st.session_state["recalc_success"] = (f"✅ Recalculated — {summary['entities']} entities · "
+        st.session_state["recalc_success"] = (f" Recalculated — {summary['entities']} entities · "
                    f"{summary['findings']} findings · {summary['cycle_label']} "
                    f"({summary['run_id']}) · {summary['duration_s']}s.")
         st.rerun()
@@ -106,7 +106,7 @@ def recalculate_button(key: str, *, label: str = "🔄 Recalculate scores now",
 # Ingestion reporting
 # ---------------------------------------------------------------------------
 
-STATUS_ICON = {"ok": "✅", "note": "🟡", "partial": "⚠️", "skipped": "⛔"}
+STATUS_ICON = {"ok": "", "note": "", "partial": "️", "skipped": ""}
 
 
 def ingest_summary_card(summary: dict, *, expanded: bool = False):
@@ -199,7 +199,7 @@ def validate_folder_card(report: dict):
 # Direction indicators for the cycle-over-cycle panel. Distinct from ``config.VERDICT_ICON``,
 # which is about examiner verdicts; the two were previously both called VERDICT_ICON and
 # imported into different pages, which invited the wrong one being picked up.
-DIRECTION_ICON = {"better": "🟢", "worse": "🔴", "flat": "⚪", "up": "▲", "down": "▼"}
+DIRECTION_ICON = {"better": "", "worse": "", "flat": "", "up": "▲", "down": "▼"}
 
 
 def cycle_diff_table(diff: dict, *, only_movements: bool = True) -> pd.DataFrame:

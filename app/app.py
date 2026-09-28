@@ -26,7 +26,7 @@ from config import CRITICALITY_TIERS, criticality_weight, normalise_tier
 st.set_page_config(
     page_title="SAT-SA | Supervisory Analytics",
     layout="wide",
-    page_icon="🛡️",
+    page_icon="️",
 )
 
 # ---------------------------------------------------------------------------
@@ -60,23 +60,40 @@ div[data-testid="stSidebar"] button {
 # Navigation
 # ---------------------------------------------------------------------------
 NAV_ITEMS = [
-    ("📁 Register & Submissions", "cse_input"),
-    ("📊 Supervisory Overview",   "risk_ranking"),
-    ("🚩 Finding Cards",          "finding_cards"),
-    ("🧑‍⚖️ Examiner Review",       "examiner_review"),
-    ("🏢 Entity Profile",         "entity_profile"),
-    ("🔍 Evidence Drill-Down",    "evidence"),
-    ("📡 Peer Comparison",        "peer_comparison"),
-    ("🕒 Activity Heatmap",       "activity_heatmap"),
-    ("📈 Trend Analysis",         "trend_analysis"),
-    ("📄 Report Export",          "report_export"),
-    ("🧪 Validation & Methods",   "validation"),
-    ("⚙️ Settings",               "settings"),
+    (" Register & Submissions", "cse_input"),
+    (" Supervisory Overview",   "risk_ranking"),
+    (" Finding Cards",          "finding_cards"),
+    ("‍️ Examiner Review",       "examiner_review"),
+    (" Entity Profile",         "entity_profile"),
+    (" Evidence Drill-Down",    "evidence"),
+    (" Peer Comparison",        "peer_comparison"),
+    (" Activity Heatmap",       "activity_heatmap"),
+    (" Trend Analysis",         "trend_analysis"),
+    (" Report Export",          "report_export"),
+    (" Validation & Methods",   "validation"),
+    ("️ Settings",               "settings"),
 ]
 
-with st.sidebar.expander("❓ How to use this tool", expanded=False):
+
+with st.sidebar.expander("Quick Start Guide", expanded=True):
     st.markdown(
         """
+        **How to evaluate SAT-SA:**
+        
+        **1. Generate or Upload Data**
+        Start at **Register & Submissions**. To evaluate quickly, click *Generate & Maintenance* and generate the synthetic portfolio. To evaluate the ingestion engine, register a company and upload raw CSV files.
+        
+        **2. Review Risk Rankings**
+        Go to the **Supervisory Overview**. This shows the entire portfolio ranked by a composite risk score (60% Metric Index, 40% Capability Scorecard).
+        
+        **3. Adjudicate Findings**
+        Go to the **Entity Profile** and scroll down to the Finding Cards. This shows *why* a company was flagged. Click inline buttons to override findings as a human-in-the-loop.
+        
+        **4. Export Offline Reports**
+        Go to **PDF Reports & Export**. Generate air-gapped PDF audit reports and download full evidentiary packages.
+        """
+    )
+
         The app starts **blank** — no demo data is pre-loaded and nothing is analysed until you
         register at least one Critical Sector Entity and ingest its submission.
 
@@ -111,7 +128,7 @@ if "active_page" not in st.session_state:
 # ---------------------------------------------------------------------------
 # Sidebar
 # ---------------------------------------------------------------------------
-st.sidebar.title("🛡️ SAT-SA")
+st.sidebar.title("️ SAT-SA")
 st.sidebar.caption("Supervisory Analytics Tool for SOC Assessment")
 st.sidebar.markdown("---")
 
@@ -233,13 +250,13 @@ if active in analytics_pages and has_entities:
     st.markdown("---")
 
 elif active in analytics_pages and not has_entities:
-    st.title("🛡️ Supervisory Analytics Tool for SOC Assessment")
+    st.title("️ Supervisory Analytics Tool for SOC Assessment")
     st.caption("NCIIPC Critical Sector Entity cyber-resilience supervision prototype · fully offline")
     st.markdown("---")
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.info("### 🛡️ The register is empty", icon="👋")
+        st.info("### ️ The register is empty", icon="")
         st.markdown(
             """
             SAT-SA starts blank and stays blank until a Critical Sector Entity is registered and
@@ -260,7 +277,7 @@ elif active in analytics_pages and not has_entities:
             demonstration, both live on the same page.
             """
         )
-        if st.button("📁 Register your first entity", type="primary", width="stretch"):
+        if st.button(" Register your first entity", type="primary", width="stretch"):
             st.session_state.active_page = "cse_input"
             st.rerun()
 

@@ -88,13 +88,13 @@ def render(filtered_metrics: pd.DataFrame):
     night_flag = float(thresholds.get("night_gap_flag", 40))
     if night_gap >= night_flag:
         st.warning(
-            f"⚠️ **{night_share:.1%}** of this entity's alerts fall in the 22:00–06:00 window. "
+            f"️ **{night_share:.1%}** of this entity's alerts fall in the 22:00–06:00 window. "
             f"That is **{night_gap:.0f}%** below what an evenly-spread monitoring load would "
             f"produce (the gap threshold is {night_flag:.0f}%). Possible staffing or logging gap."
         )
     else:
         st.success(
-            f"✅ **{night_share:.1%}** of alerts fall in the night window — a gap of "
+            f" **{night_share:.1%}** of alerts fall in the night window — a gap of "
             f"{night_gap:.0f}% against an evenly-spread load, below the {night_flag:.0f}% "
             f"threshold. Consistent with continuous monitoring."
         )
@@ -130,8 +130,8 @@ def render(filtered_metrics: pd.DataFrame):
     else:
         ratio = weekend_avg / weekday_avg
         if ratio < weekend_ratio_flag:
-            st.warning(f"⚠️ Weekend activity is only {ratio:.1%} of weekday activity, below the "
+            st.warning(f"️ Weekend activity is only {ratio:.1%} of weekday activity, below the "
                        f"{weekend_ratio_flag:.0%} threshold — possible weekend blind spot.")
         else:
-            st.success(f"✅ Weekend activity is {ratio:.1%} of weekday activity, at or above the "
+            st.success(f" Weekend activity is {ratio:.1%} of weekday activity, at or above the "
                        f"{weekend_ratio_flag:.0%} threshold.")

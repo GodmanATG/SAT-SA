@@ -109,7 +109,7 @@ def render(filtered_metrics: pd.DataFrame):
     )
     st.plotly_chart(fig, width="stretch")
 
-    st.caption("💡 Higher values = worse performance (further from center = more concern). "
+    st.caption(" Higher values = worse performance (further from center = more concern). "
                "Category Coverage is inverted so gaps show outward.")
 
     # ── Comparison table ─────────────────────────────────────────────────
