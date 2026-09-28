@@ -41,7 +41,7 @@ present a portfolio the supervisor did not provide.
 |---|---|---|
 | **Register one CSE by hand** | Register & Submissions → *Register a CSE* | Profile (+ criticality tier, SOC arrangements, declared controls/KPIs) and upload its files. Stored permanently; editable afterwards. |
 | **Bulk-ingest submissions** | Register & Submissions → *Bulk Ingest* | Point at a directory of CSE folders; every entity is registered and ingested in one pass. |
-| **Generate a demo portfolio** | Register & Submissions → *Generate & Maintenance* | Writes 27 fictional CSEs across all 10 CII sectors (one click: generate → ingest → analyse). |
+| **Generate a demo portfolio** | Register & Submissions → *Generate & Maintenance* | Writes 47 fictional CSEs across all 10 CII sectors (one click: generate → ingest → analyse). |
 
 Then press **Run analytics across all registered entities**. Analytics always run across the
 whole register, so peer comparison and sector benchmarking stay meaningful — a single entity
