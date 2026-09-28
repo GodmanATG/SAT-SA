@@ -40,8 +40,11 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
     placeholders = ",".join("?" * len(ids))
     with get_db() as conn:
         alerts_rows = conn.execute(
-            f"SELECT a.*, e.entity_name FROM alerts a "
+            f"SELECT a.*, e.entity_name, "
+            f"COALESCE(NULLIF(TRIM(a.investigator_notes), ''), c.investigation_note_text) AS investigator_notes "
+            f"FROM alerts a "
             f"JOIN entities e ON a.entity_id = e.entity_id "
+            f"LEFT JOIN cases c ON a.case_id = c.case_id AND a.entity_id = c.entity_id "
             f"WHERE a.entity_id IN ({placeholders}) "
             f"ORDER BY a.created_ts DESC LIMIT {QUERY_LIMIT}",
             tuple(ids),
