@@ -173,8 +173,7 @@ def render():
             st.markdown("---")
             st.info("No findings have been adjudicated by an examiner yet. The synthetic numbers "
                     "above measure the detectors against injected patterns; only examiner "
-                    "adjudication (Examiner Review page) measures them against human judgement.",
-                    icon="‍️")
+                    "adjudication (Examiner Review page) measures them against human judgement.")
 
     st.markdown("---")
     st.subheader("Per-detector performance")

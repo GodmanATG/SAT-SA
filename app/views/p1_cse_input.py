@@ -233,7 +233,7 @@ def render():
         if entity_count == 0:
             st.info("**Step 1 of 3 — register your first entity.** Fill in the profile below, attach its "
                     "submission files (optional; you can also point at a folder later), and save. The "
-                    "profile is stored permanently and can be edited at any time.", icon="1️⃣")
+                    "profile is stored permanently and can be edited at any time.")
         else:
             st.caption(f"{entity_count} entities currently registered. Analytics run across all of "
                        f"them together, so peer comparison stays meaningful.")
