@@ -125,15 +125,6 @@ for group_name, items in NAV_GROUPS.items():
 
 st.sidebar.markdown("---")
 
-st.sidebar.markdown("**Navigation**")
-for label, key in NAV_ITEMS:
-    is_active = st.session_state.active_page == key
-    btn_label = f"▸ **{label}**" if is_active else f"  {label}"
-    if st.sidebar.button(btn_label, key=f"nav_{key}", width="stretch"):
-        st.session_state.active_page = key
-        st.rerun()
-
-st.sidebar.markdown("---")
 
 # Global filters (for analytics pages)
 active = st.session_state.active_page
