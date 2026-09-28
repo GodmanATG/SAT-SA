@@ -41,8 +41,8 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
     with get_db() as conn:
         alerts_rows = conn.execute(
             f"SELECT a.*, e.entity_name, "
-            f"COALESCE(NULLIF(TRIM(a.assigned_analyst_id), ''), c.assigned_analyst) AS assigned_analyst_id, "
-            f"COALESCE(NULLIF(TRIM(a.investigator_notes), ''), c.investigation_note_text) AS investigator_notes "
+            f"COALESCE(NULLIF(TRIM(a.assigned_analyst_id), ''), c.assigned_analyst) AS final_analyst, "
+            f"COALESCE(NULLIF(TRIM(a.investigator_notes), ''), c.investigation_note_text) AS final_notes "
             f"FROM alerts a "
             f"JOIN entities e ON a.entity_id = e.entity_id "
             f"LEFT JOIN cases c ON a.case_id = c.case_id AND a.entity_id = c.entity_id "
@@ -56,6 +56,10 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
         return
 
     alerts_df = pd.DataFrame([dict(r) for r in alerts_rows])
+    if "final_notes" in alerts_df.columns:
+        alerts_df["investigator_notes"] = alerts_df["final_notes"]
+    if "final_analyst" in alerts_df.columns:
+        alerts_df["assigned_analyst_id"] = alerts_df["final_analyst"]
 
     # Convert timestamps
     for col in ["created_ts", "acknowledged_ts", "closed_ts"]:
