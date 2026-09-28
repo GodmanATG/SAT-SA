@@ -59,51 +59,70 @@ div[data-testid="stSidebar"] button {
 # ---------------------------------------------------------------------------
 # Navigation
 # ---------------------------------------------------------------------------
-NAV_ITEMS = [
-    (" Register & Submissions", "cse_input"),
-    (" Supervisory Overview",   "risk_ranking"),
-    (" Finding Cards",          "finding_cards"),
-    ("‍️ Examiner Review",       "examiner_review"),
-    (" Entity Profile",         "entity_profile"),
-    (" Evidence Drill-Down",    "evidence"),
-    (" Peer Comparison",        "peer_comparison"),
-    (" Activity Heatmap",       "activity_heatmap"),
-    (" Trend Analysis",         "trend_analysis"),
-    (" Report Export",          "report_export"),
-    (" Validation & Methods",   "validation"),
-    ("️ Settings",               "settings"),
-]
 
+NAV_GROUPS = {
+    "Setup & Data": [
+        ("Register & Submissions", "cse_input")
+    ],
+    "Supervisory Dashboards": [
+        ("Supervisory Overview",   "risk_ranking"),
+        ("Finding Cards",          "finding_cards"),
+        ("Activity Heatmap",       "activity_heatmap"),
+        ("Peer Comparison",        "peer_comparison"),
+        ("Trend Analysis",         "trend_analysis")
+    ],
+    "Deep Dives & Review": [
+        ("Entity Profile",         "entity_profile"),
+        ("Evidence Drill-Down",    "evidence"),
+        ("Examiner Review",        "examiner_review")
+    ],
+    "Reports & Admin": [
+        ("Report Export",          "report_export"),
+        ("Validation & Methods",   "validation"),
+        ("Settings",               "settings")
+    ]
+}
+
+st.sidebar.title("SAT-SA")
+st.sidebar.caption("Supervisory Analytics Tool for SOC Assessment")
 
 with st.sidebar.expander("Quick Start Guide", expanded=True):
     st.markdown(
         """
         **How to evaluate SAT-SA:**
         
-        **1. Generate or Upload Data**
-        Start at **Register & Submissions**. To evaluate quickly, click *Generate & Maintenance* and generate the synthetic portfolio. To evaluate the ingestion engine, register a company and upload raw CSV files.
+        **1. Generate Data**  
+        Start at **Register & Submissions**. Click *Generate & Maintenance* to build the synthetic portfolio.
         
-        **2. Review Risk Rankings**
-        Go to the **Supervisory Overview**. This shows the entire portfolio ranked by a composite risk score (60% Metric Index, 40% Capability Scorecard).
+        **2. Review Risk Rankings**  
+        Go to the **Supervisory Overview** to see the portfolio ranked by a composite risk score.
         
-        **3. Adjudicate Findings**
-        Go to the **Entity Profile** and scroll down to the Finding Cards. This shows *why* a company was flagged. Click inline buttons to override findings as a human-in-the-loop.
+        **3. Adjudicate Findings**  
+        Go to the **Entity Profile** and scroll down to the Finding Cards. Click inline buttons to override findings.
         
-        **4. Export Offline Reports**
-        Go to **PDF Reports & Export**. Generate air-gapped PDF audit reports and download full evidentiary packages.
+        **4. Export Reports**  
+        Go to **Report Export** to generate air-gapped PDF audit reports and download full evidentiary packages.
         """
     )
 
 if "active_page" not in st.session_state:
-    # Start on the register, not on an analytics page: with a blank register there is
-    # nothing to analyse, and the first thing a supervisor must do is register an entity.
     st.session_state.active_page = "risk_ranking" if has_data() else "cse_input"
 
 # ---------------------------------------------------------------------------
-# Sidebar
+# Sidebar Navigation
 # ---------------------------------------------------------------------------
-st.sidebar.title("️ SAT-SA")
-st.sidebar.caption("Supervisory Analytics Tool for SOC Assessment")
+st.sidebar.markdown("---")
+
+for group_name, items in NAV_GROUPS.items():
+    st.sidebar.markdown(f"**{group_name}**")
+    for label, key in items:
+        is_active = st.session_state.active_page == key
+        button_type = "primary" if is_active else "secondary"
+        if st.sidebar.button(label, key=f"nav_{key}", type=button_type, use_container_width=True):
+            st.session_state.active_page = key
+            st.rerun()
+    st.sidebar.write("") # small spacer
+
 st.sidebar.markdown("---")
 
 st.sidebar.markdown("**Navigation**")
