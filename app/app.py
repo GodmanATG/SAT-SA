@@ -94,8 +94,6 @@ with st.sidebar.expander("Quick Start Guide", expanded=True):
         """
     )
 
-    )
-
 if "active_page" not in st.session_state:
     # Start on the register, not on an analytics page: with a blank register there is
     # nothing to analyse, and the first thing a supervisor must do is register an entity.
