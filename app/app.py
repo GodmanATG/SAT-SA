@@ -26,7 +26,7 @@ from config import CRITICALITY_TIERS, criticality_weight, normalise_tier
 st.set_page_config(
     page_title="SAT-SA | Supervisory Analytics",
     layout="wide",
-    page_icon="️",
+    page_icon=":material/analytics:",
 )
 
 # ---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ elif active in analytics_pages and not has_entities:
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.info("### ️ The register is empty", icon="")
+        st.info("### The register is empty", icon=":material/info:")
         st.markdown(
             """
             SAT-SA starts blank and stays blank until a Critical Sector Entity is registered and
