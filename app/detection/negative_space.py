@@ -34,7 +34,7 @@ def detect_silent_assets(alerts, assets, data_quality_score, thresholds=None) ->
         return []
 
     silent = assets[
-        assets["criticality_tier"].astype(str).str.lower().isin(["critical", "tier1", "tier 1"])
+        assets["criticality_tier"].astype(str).str.contains("critical|tier.?1", case=False, na=False, regex=True)
     ].copy()
     if silent.empty:
         return []
@@ -278,7 +278,7 @@ def detect_unmonitored_assets(assets, thresholds=None) -> list[dict]:
         return []
 
     crit = assets[
-        assets["criticality_tier"].astype(str).str.lower().isin(["critical", "tier1", "tier 1"])]
+        assets["criticality_tier"].astype(str).str.contains("critical|tier.?1", case=False, na=False, regex=True)]
     if crit.empty:
         return []
     status = crit["monitoring_status"].astype(str).str.lower()

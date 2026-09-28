@@ -8,6 +8,7 @@ Supervisor can tune these without touching code.
 
 import json
 import pathlib
+import re
 
 CONFIG_PATH = pathlib.Path(__file__).parent / "detection_config.json"
 
@@ -278,7 +279,7 @@ SECTOR_EXPECTED_CATEGORIES = {
 # Weights of the composite supervisory risk score. Each key names a normalised
 # metric gap (see detection/scoring.py::metric_gaps); the weights sum to 1.0 and
 # are editable so a supervisor can re-prioritise without touching code.
-RISK_SCORE_WEIGHTS = {
+_raw_weights = {
     "fast_closure_rate":        0.12,
     "crit_no_escalation_rate":  0.12,
     "template_note_rate":       0.09,
@@ -300,6 +301,7 @@ RISK_SCORE_WEIGHTS = {
     "weekend_activity_gap":     0.03,   # telemetry rate collapsing at weekends
     "thin_investigation_gap":   0.03,   # cases "investigated" in seconds
 }
+RISK_SCORE_WEIGHTS = {k: v / sum(_raw_weights.values()) for k, v in _raw_weights.items()}
 
 # ---------------------------------------------------------------------------
 # Severity Score Mapping
@@ -362,7 +364,7 @@ def is_non_counting(verdict) -> bool:
     text = str(verdict or "").strip().lower()
     if not text:
         return False
-    return any(label.lower() in text for label in NON_COUNTING_VERDICTS)
+    return any(re.search(r'\b' + re.escape(label.lower()) + r'\b', text) for label in NON_COUNTING_VERDICTS)
 
 
 def canonical_verdict_label(verdict: str | None) -> str:

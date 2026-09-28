@@ -789,7 +789,7 @@ def render():
         confirm = st.checkbox("I understand this deletes all ingested data and findings")
         if st.button("🗑️ Clear all data", disabled=not confirm):
             with get_db() as conn:
-                for table in ("adjudications", "monthly_metrics", "findings", "entity_metrics",
+                for table in ("audit_log", "adjudications", "monthly_metrics", "findings", "metric_snapshots", "entity_metrics",
                               "documents", "investigations", "dispositions", "escalations",
                               "cases", "alerts", "asset_inventory", "entities"):
                     conn.execute(f"DELETE FROM {table}")

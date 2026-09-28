@@ -104,7 +104,8 @@ class SATSAReport(FPDF):
         self.set_x(self.l_margin)
         self.set_font("Helvetica", "", 8)
         for text, width in zip(cells, widths):
-            self.cell(width, 5.5, _clean(str(text))[:30], border=1)
+            max_chars = max(8, int(width / 2.2))
+            self.cell(width, 5.5, _clean(str(text))[:max_chars], border=1)
         self.ln()
 
     def tier_badge(self, tier: str, score: float):

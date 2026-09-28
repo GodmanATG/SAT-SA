@@ -292,6 +292,7 @@ def alert_features(df: pd.DataFrame, keys: list[str]) -> pd.DataFrame:
     out["escalation_rate_critical"] = (
         out["escalated_critical"] / out["critical"].replace(0, np.nan)).fillna(0.0)
     out["crit_no_escalation_rate"] = 1.0 - out["escalation_rate_critical"]
+    out.loc[out["critical"] == 0, "crit_no_escalation_rate"] = 0.0
     out["repeat_alert_rate"] = (out["repeats"] / out["total_alerts"].replace(0, np.nan)).fillna(0.0)
     out["missing_case_rate"] = (out["missing_case"] / out["crit_high"].replace(0, np.nan)).fillna(0.0)
     out["root_cause_rate"] = (out["root_cause"] / out["total_alerts"].replace(0, np.nan)).fillna(0.0)
@@ -680,7 +681,7 @@ def inventory_features(assets: pd.DataFrame, alerts: pd.DataFrame) -> pd.DataFra
     df["criticality_tier"] = df["criticality_tier"].fillna("").astype(str)
     df["criticality_tier"] = df.apply(
         lambda r: r["criticality_tier"] or str(r.get("business_criticality", "")), axis=1)
-    critical = df["criticality_tier"].str.lower().isin(["critical", "tier1", "tier 1", "high"])
+    critical = df["criticality_tier"].str.contains("critical|tier.?1", case=False, na=False, regex=True)
     df["is_critical"] = critical
     df["is_ot"] = df["asset_class"].astype(str).str.lower().str.startswith("critical_ot")
     df["monitored"] = df["monitoring_status"].astype(str).str.lower().isin(
@@ -747,7 +748,7 @@ def entity_features(alerts, cases, escalations, assets, thresholds,
     for part in parts:
         if part is None or part.empty:
             continue
-        part = part.drop(columns=[c for c in part.columns if c.startswith("_")])
+        part = part.drop(columns=[c for c in part.columns if c.startswith("_") and c != "_duplicate_case_ids"])
         out = part if out.empty else out.merge(part, on="entity_id", how="outer")
     if out.empty:
         return out, enriched

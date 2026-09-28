@@ -120,10 +120,11 @@ def render(filtered_metrics: pd.DataFrame):
     weekend_ratio_flag = float(thresholds.get("weekend_activity_ratio_flag", 0.15))
     weekend_min_alerts = float(thresholds.get("weekend_min_alerts", 150))
     weekend_total = float(dow_counts[['Saturday', 'Sunday']].sum())
+    total_alerts = float(dow_counts.sum())
     weekday_avg = float(dow_counts[WEEKDAYS].mean())
     weekend_avg = float(dow_counts[["Saturday", "Sunday"]].mean())
-    if weekend_total < weekend_min_alerts or weekday_avg <= 0:
-        st.info(f"{weekend_total:,.0f} weekend alert(s) is below the {weekend_min_alerts:,.0f} "
+    if total_alerts < weekend_min_alerts or weekday_avg <= 0:
+        st.info(f"{total_alerts:,.0f} total alert(s) is below the {weekend_min_alerts:,.0f} "
                 f"minimum sample the detector requires, so no weekend judgement is made from "
                 f"this data.")
     else:

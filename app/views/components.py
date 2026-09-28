@@ -46,7 +46,7 @@ def canonical_verdict(text: str | None) -> str:
     verdict = (text or "").strip()
     if not verdict:
         return ""
-    return next((v for v in ADJUDICATION_VERDICTS if v.lower() in verdict.lower()), verdict)
+    return next((v for v in ADJUDICATION_VERDICTS if verdict.lower().startswith(v.lower())), verdict)
 
 
 def verdict_display(text: str | None, *, when: str = "", outstanding: str = "— outstanding") -> str:
@@ -87,12 +87,16 @@ def recalculate_button(key: str, *, label: str = "🔄 Recalculate scores now",
     navigate away and remember to re-run, which is exactly the kind of friction that
     makes a human-in-the-loop feature go unused.
     """
+    if st.session_state.get("recalc_success"):
+        st.success(st.session_state["recalc_success"])
+        st.session_state["recalc_success"] = ""
+
     if caption:
         st.caption(caption)
     left, _right = st.columns(columns)
     if left.button(label, key=f"recalc_{key}", type="primary"):
         summary = run_detection_with_progress()
-        st.success(f"✅ Recalculated — {summary['entities']} entities · "
+        st.session_state["recalc_success"] = (f"✅ Recalculated — {summary['entities']} entities · "
                    f"{summary['findings']} findings · {summary['cycle_label']} "
                    f"({summary['run_id']}) · {summary['duration_s']}s.")
         st.rerun()

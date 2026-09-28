@@ -55,7 +55,7 @@ def metric_gaps(metrics: dict) -> dict:
         "fast_closure_rate": _clip01(metrics.get("fast_closure_rate")),
         "crit_no_escalation_rate": _clip01(metrics.get("crit_no_escalation_rate")),
         "template_note_rate": _clip01(metrics.get("template_note_rate")),
-        "night_coverage_gap_pct": _clip01(_clip01(metrics.get("night_coverage_gap_pct")) / 100.0)
+        "night_coverage_gap_pct": _clip01(float(metrics.get("night_coverage_gap_pct") or 0.0) / 100.0)
         if metrics.get("night_coverage_gap_pct") is not None else 0.0,
         "repeat_alert_rate": _clip01(metrics.get("repeat_alert_rate")),
         "category_coverage_gap": 1.0 - _clip01(metrics.get("expected_category_coverage", 1.0)),

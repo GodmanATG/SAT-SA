@@ -255,6 +255,7 @@ def migrate_schema(conn) -> list[str]:
         primary_key = [row[1] for row in sorted((r for r in info if r[5]), key=lambda r: r[5])]
         if primary_key == [id_column] and _rebuild_table(conn, table):
             applied.append(f"{table} re-keyed on (entity_id, {id_column})")
+    conn.execute("PRAGMA foreign_keys=ON")
     return applied
 
 

@@ -236,8 +236,7 @@ def evidence_ids_for(rule_id: str, frames: dict, thresholds: dict | None = None)
     if rule_id in ("NS-001", "NS-006"):
         if assets is None or assets.empty:
             return (table, [], basis)
-        crit = assets["criticality_tier"].astype(str).str.lower().isin(
-            ["critical", "tier1", "tier 1", "high"])
+        crit = assets["criticality_tier"].astype(str).str.contains("critical|tier.?1", case=False, na=False, regex=True)
         if rule_id == "NS-006":
             status = _text_col(assets, "monitoring_status").str.lower()
             mask = crit & ~status.isin(["active", "enabled", "true", "1", "yes", ""])

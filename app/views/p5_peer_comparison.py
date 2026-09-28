@@ -73,13 +73,21 @@ def render(filtered_metrics: pd.DataFrame):
 
     for _, row in compare_df.iterrows():
         values = []
+        fraction_metrics = {
+            "fast_closure_rate", "crit_no_escalation_rate", "template_note_rate",
+            "expected_category_coverage", "escalation_rate_critical", "repeat_alert_rate",
+            "shallow_investigation_rate", "weekend_activity_ratio",
+            "sla_breach_rate", "rework_loop_rate", "investigation_gap_rate"
+        }
         for metric_col in available_metrics.keys():
             val = row.get(metric_col, 0)
             # Invert coverage so that higher = worse (consistent direction)
             if metric_col == "expected_category_coverage":
                 val = (1 - val) * 100 if val else 0
+            elif metric_col in fraction_metrics:
+                val = val * 100 if val else 0
             else:
-                val = val * 100 if val and val <= 1 else (val or 0)
+                val = val or 0
             values.append(round(val, 1))
 
         fig.add_trace(go.Scatterpolar(
@@ -127,12 +135,24 @@ def render(filtered_metrics: pd.DataFrame):
     # Melt for grouped bar
     melt_cols = list(available_metrics.keys())
     melt_df = compare_df[["entity_name"] + melt_cols].melt(
-        id_vars="entity_name", var_name="metric", value_name="value"
+        id_vars="entity_name", var_name="metric_col", value_name="value"
     )
-    melt_df["metric"] = melt_df["metric"].map(available_metrics)
-    melt_df["value"] = melt_df["value"].apply(
-        lambda x: round(x * 100, 1) if x and x <= 1 else round(x or 0, 1)
-    )
+    
+    fraction_metrics = {
+        "fast_closure_rate", "crit_no_escalation_rate", "template_note_rate",
+        "expected_category_coverage", "escalation_rate_critical", "repeat_alert_rate",
+        "shallow_investigation_rate", "weekend_activity_ratio",
+        "sla_breach_rate", "rework_loop_rate", "investigation_gap_rate"
+    }
+
+    def scale_val(row):
+        v = row["value"] or 0
+        if row["metric_col"] in fraction_metrics:
+            v *= 100
+        return round(v, 1)
+
+    melt_df["value"] = melt_df.apply(scale_val, axis=1)
+    melt_df["metric"] = melt_df["metric_col"].map(available_metrics)
 
     fig2 = px.bar(
         melt_df, x="metric", y="value", color="entity_name",

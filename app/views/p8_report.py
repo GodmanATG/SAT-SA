@@ -87,15 +87,19 @@ def render(filtered_metrics: pd.DataFrame):
                                     declarations=declarations, controls=controls,
                                     cycle=cycle, profile=profile, run_meta=run_meta)
                 with open(tmp_path, "rb") as f:
-                    st.download_button(
-                        "⬇️ Download Entity Report (PDF)",
-                        f.read(),
-                        file_name=f"{rep_entity.replace(' ', '_')}_SAT-SA_Report.pdf",
-                        mime="application/pdf",
-                    )
+                    st.session_state["entity_pdf_bytes"] = f.read()
+                    st.session_state["entity_pdf_name"] = f"{rep_entity.replace(' ', '_')}_SAT-SA_Report.pdf"
                 st.success("Report generated locally — no data left this machine.")
             except Exception as e:
                 st.error(f"Report generation failed: {e}")
+
+        if "entity_pdf_bytes" in st.session_state:
+            st.download_button(
+                "⬇️ Download Entity Report (PDF)",
+                st.session_state["entity_pdf_bytes"],
+                file_name=st.session_state["entity_pdf_name"],
+                mime="application/pdf",
+            )
 
     # ── Portfolio report ─────────────────────────────────────────────────
     with rc2:
@@ -128,15 +132,18 @@ def render(filtered_metrics: pd.DataFrame):
                     tier_by_entity=tiers,
                 )
                 with open(tmp_path, "rb") as f:
-                    st.download_button(
-                        "⬇️ Download Portfolio Report (PDF)",
-                        f.read(),
-                        file_name="SAT-SA_Portfolio_Report.pdf",
-                        mime="application/pdf",
-                    )
+                    st.session_state["portfolio_pdf_bytes"] = f.read()
                 st.success("Report generated locally — no data left this machine.")
             except Exception as e:
                 st.error(f"Report generation failed: {e}")
+
+        if "portfolio_pdf_bytes" in st.session_state:
+            st.download_button(
+                "⬇️ Download Portfolio Report (PDF)",
+                st.session_state["portfolio_pdf_bytes"],
+                file_name="SAT-SA_Portfolio_Report.pdf",
+                mime="application/pdf",
+            )
 
     # ── Machine-readable exports ─────────────────────────────────────────
     st.markdown("---")

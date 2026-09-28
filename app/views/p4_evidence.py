@@ -119,7 +119,7 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
         for col in ["alert_id", "hostname", "investigator_notes", "alert_category",
                     "case_id", "assigned_analyst_id"]:
             if col in ddf.columns:
-                mask = mask | ddf[col].astype(str).str.contains(search, case=False, na=False)
+                mask = mask | ddf[col].astype(str).str.contains(search, case=False, na=False, regex=False)
         ddf = ddf[mask]
 
     shown = min(DISPLAY_LIMIT, len(ddf))

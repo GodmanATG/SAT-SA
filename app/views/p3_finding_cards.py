@@ -217,8 +217,15 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
                 "(findings adjudicated false positive or expected are excluded from the review queue).")
         return
 
-    with_case["capabilities"] = with_case["capability_tags"].apply(
-        lambda t: ", ".join(json.loads(t) if isinstance(t, str) else (t or [])))
+    def safe_parse_caps(t):
+        if not isinstance(t, str):
+            return ", ".join(t or [])
+        try:
+            return ", ".join(json.loads(t))
+        except (json.JSONDecodeError, TypeError):
+            return ""
+
+    with_case["capabilities"] = with_case["capability_tags"].apply(safe_parse_caps)
     samples = with_case.sort_values(["severity_score", "evidence_count"], ascending=False)
     sample_size = st.slider("Findings to list", min_value=5, max_value=100, value=25, step=5,
                             key="review_sample_size",
