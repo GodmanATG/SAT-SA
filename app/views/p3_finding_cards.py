@@ -43,6 +43,8 @@ GROUP_LABEL = {
 
 
 def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
+    st.info("💡 **How to read this:** This view aggregates all anomalies (Findings) detected across the entire portfolio. Use this to spot systemic weaknesses (e.g., widespread execution gaps) across multiple companies at once.")
+
     st.subheader("Supervisory Finding Cards")
     st.caption("Each card states the rule, the measured value against its threshold, why it matters, "
                "and the exact evidence records behind it.")

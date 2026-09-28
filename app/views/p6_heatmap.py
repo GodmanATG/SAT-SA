@@ -21,6 +21,8 @@ WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
 
 
 def render(filtered_metrics: pd.DataFrame):
+    st.info("💡 **How to read this:** This heatmap tracks alert volume over time. Look for distinct vertical gaps (e.g., weekends or nights) which may indicate an entity's SOC is shutting down or failing to monitor critical hours.")
+
     st.subheader("SOC Activity Heatmap")
     st.caption(
         "Alert volume by hour of day and day of week. A genuinely 24×7 SOC should show "

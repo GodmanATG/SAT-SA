@@ -45,6 +45,8 @@ RATE_METRICS = {k for k in TREND_METRICS
 
 
 def render(filtered_metrics: pd.DataFrame):
+    st.info("💡 **How to read this:** This compares the current audit cycle against previous submissions. Use this to see if an entity is improving its security posture over time or degrading.")
+
     st.subheader("Behavioural Trend Analysis (6-Month Window)")
     st.caption(
         "How key indicators for an entity have moved over time — useful for spotting "

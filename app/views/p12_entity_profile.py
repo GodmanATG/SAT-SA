@@ -98,6 +98,8 @@ def _fmt(value, kind: str) -> str:
 
 
 def render(entity_ids=None):
+    st.info("💡 **How to read this profile:** This page provides a deep dive into a single entity. It compares what the entity *claimed* on paper against what the engine *measured* in their raw logs. Scroll down to review and adjudicate specific finding cards.")
+
     st.title(" Entity Profile & Declarations")
     st.caption("What the entity submitted, what it declares about itself, and whether its own "
                "records support those declarations.")

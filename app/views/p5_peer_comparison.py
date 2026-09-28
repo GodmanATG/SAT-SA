@@ -9,6 +9,8 @@ import plotly.express as px
 
 
 def render(filtered_metrics: pd.DataFrame):
+    st.info("💡 **How to read this:** This page benchmarks an entity against the median performance of other companies in the same sector. Red indicators highlight where this specific entity is falling dangerously behind its peers.")
+
     st.subheader("Peer Comparison")
     st.caption("Compare entities within the same sector across key operational metrics. "
                "Radar charts show how each entity measures up against its peers.")

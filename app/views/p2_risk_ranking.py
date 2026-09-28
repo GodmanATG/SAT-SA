@@ -95,6 +95,8 @@ def _cycle_movement_panel():
 
 
 def render(filtered_metrics: pd.DataFrame):
+    st.info("💡 **How to read this dashboard:** This chart ranks all entities by risk. A higher score (Red) indicates severe operational gaps and a critical need for an audit. The pie chart shows the overall health of the portfolio.")
+
     st.subheader("Entity Risk Ranking")
     st.caption(
         "Entities ordered by the composite supervisory risk score. The score is a weighted "
