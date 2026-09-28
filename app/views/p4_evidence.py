@@ -41,6 +41,7 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
     with get_db() as conn:
         alerts_rows = conn.execute(
             f"SELECT a.*, e.entity_name, "
+            f"COALESCE(NULLIF(TRIM(a.assigned_analyst_id), ''), c.assigned_analyst) AS assigned_analyst_id, "
             f"COALESCE(NULLIF(TRIM(a.investigator_notes), ''), c.investigation_note_text) AS investigator_notes "
             f"FROM alerts a "
             f"JOIN entities e ON a.entity_id = e.entity_id "
