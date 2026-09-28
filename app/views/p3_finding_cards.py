@@ -165,9 +165,11 @@ def render(filtered_metrics: pd.DataFrame, filtered_entity_ids: set):
                 st.caption(f" **{count:,}** total flagged record(s) *(inline preview sample of {min(count, sample_len or 25)} IDs: `{shown}`"
                            + (" …" if count > 5 else "")
                            + ")*")
-            else:
-                st.caption(" Derived from the absence of expected records (negative space) — "
+            elif f.get("weakness_type") == "negative_space":
+                st.caption(" Derived from the absence of expected records (negative space) - "
                            "verify via the inventory / coverage views.")
+            else:
+                st.caption(" Evidence records for this finding are extracted dynamically at full export.")
 
             # Prominent Download Full CSV button for examiners needing all records
             full_evidence_export(
