@@ -57,7 +57,7 @@ TABLE_COLUMNS = {
                "created_by", "investigator_notes"],
     "cases": ["case_id", "opened_ts", "updated_ts", "closed_ts", "resolution_ts", "status",
               "case_type", "case_category", "priority", "severity", "case_description",
-              "investigation_note_text", "root_cause_documented", "remediation_documented",
+              "investigation_note_text", "root_cause", "root_cause_documented", "remediation_documented",
               "reopened_count", "assigned_analyst", "assigned_team", "created_from_alert",
               "number_of_alerts", "affected_asset_count", "affected_user_count",
               "parent_case_id", "related_case_id", "linked_alert_ids"],

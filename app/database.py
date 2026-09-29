@@ -405,6 +405,7 @@ CREATE TABLE IF NOT EXISTS cases (
     severity                TEXT DEFAULT '',
     case_description        TEXT DEFAULT '',
     investigation_note_text TEXT DEFAULT '',
+    root_cause              TEXT DEFAULT '',
     root_cause_documented   INTEGER DEFAULT 0,
     remediation_documented  INTEGER DEFAULT 0,
     reopened_count          INTEGER DEFAULT 0,

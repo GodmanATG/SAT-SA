@@ -183,6 +183,18 @@ def derive_linked_fields(conn, entity_id: str) -> dict:
     if not has_disp:
         return out
 
+    # If the user put root_cause text in cases instead of dispositions, backfill dispositions
+    cur = conn.execute("""
+        UPDATE dispositions SET
+            root_cause = CASE WHEN TRIM(COALESCE(dispositions.root_cause,'')) = ''
+                              THEN COALESCE((SELECT c.root_cause FROM cases c
+                                             WHERE c.case_id = dispositions.case_id
+                                               AND c.entity_id = dispositions.entity_id LIMIT 1), '')
+                              ELSE dispositions.root_cause END
+        WHERE entity_id = ? AND TRIM(COALESCE(dispositions.root_cause,'')) = ''
+          AND TRIM(COALESCE(dispositions.case_id,'')) <> ''
+    """, (entity_id,))
+
     # cases: root cause / remediation documented, reopen count.
     # Every correlated subquery is scoped by entity_id as well as case_id: a case id is
     # unique only within one CSE, so without the second predicate another entity's
