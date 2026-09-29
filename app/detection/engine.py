@@ -314,7 +314,9 @@ def run_detection(db_path=None, progress=None) -> dict:
         # Category coverage against the sector reference profile (a metric, not just
         # a detector input - it carries 8% of the composite risk score).
         expected_cats = {c.lower() for c in SECTOR_EXPECTED_CATEGORIES.get(sector, [])}
-        present_cats = {str(c).lower().strip() for c in ent_alerts.get("alert_category", pd.Series(dtype=str)).dropna()}
+        cat_series = ent_alerts.get("alert_category", pd.Series(dtype=str)).dropna().str.lower().str.strip()
+        cat_counts = cat_series.value_counts()
+        present_cats = set(cat_counts[cat_counts >= 3].index)
         metrics["expected_category_coverage"] = (
             round(len(expected_cats & present_cats) / len(expected_cats), 4) if expected_cats else 1.0)
 

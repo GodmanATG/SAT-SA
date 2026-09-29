@@ -83,7 +83,8 @@ def detect_missing_categories(alerts, entity_sector, thresholds=None) -> list[di
 
     present = set()
     if alerts is not None and not alerts.empty and "alert_category" in alerts.columns:
-        present = {str(c).lower().strip() for c in alerts["alert_category"].dropna()}
+        cat_counts = alerts["alert_category"].dropna().astype(str).str.lower().str.strip().value_counts()
+        present = set(cat_counts[cat_counts >= 3].index)
 
     expected_lower = {e.lower() for e in expected}
     missing = sorted(expected_lower - present)
