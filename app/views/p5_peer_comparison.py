@@ -149,7 +149,9 @@ def render(filtered_metrics: pd.DataFrame):
 
     def scale_val(row):
         v = row["value"] or 0
-        if row["metric_col"] in fraction_metrics:
+        if row["metric_col"] == "expected_category_coverage":
+            v = (1.0 - v) * 100
+        elif row["metric_col"] in fraction_metrics:
             v *= 100
         return round(v, 1)
 
